@@ -18,16 +18,16 @@ getGreeting();
 }, []);
 
   return (
-    <>
-      <div className=""> {name} </div>
+    <div className="flex justify-center">
+      <div className="text-white font-semibold bg-black"> {name} </div>
       <div>
         <Image
           src={Background}
           fill
           alt="background"
-          className="min-h-screen overflow-hidden"
+          className="min-h-screen overflow-hidden -z-50"
         />
       </div>
-    </>
+    </div>
   );
 }
