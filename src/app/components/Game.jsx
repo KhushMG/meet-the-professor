@@ -1,32 +1,21 @@
-"use client";
-import Background from "../assets/background.jpg"; 
-import Image from "next/image"
-import { invoke } from "@tauri-apps/api";
-import { useEffect, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
-
-
-export default function Game() {
-  const [name, setName] = useState('World');
-  useEffect(() => { 
-    const getGreeting = async () => {
-    const response = await invoke('greet', { name: 'Balls' });
-    setName(response);
-    console.log(response);  // Logs: "Hello, World!"
-};
-getGreeting(); 
-}, []);
-
+export default function Game({ difficulty }) {
+  useGSAP(() => {
+    const tl = gsap.timeline({});
+    tl.set('#background', { delay: 1.5, filter: 'brightness(1)'})
+  })
+  
   return (
-    <div className="flex justify-center">
-      <div className="text-white font-semibold bg-black"> {name} </div>
-      <div>
-        <Image
-          src={Background}
-          fill
-          alt="background"
-          className="min-h-screen overflow-hidden -z-50"
-        />
+    <div className="relative h-screen flex items-center justify-center text-white font-thin">
+    
+      {/* Background div */}
+      <div id='background' className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
+
+      {/* Make sure rest of content goes above background div */}
+      <div className="z-10 flex flex-col select-none">
+        <div className="text-7xl">{difficulty}</div>
       </div>
     </div>
   );

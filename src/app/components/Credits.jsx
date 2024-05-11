@@ -1,5 +1,3 @@
-
-
 export default function Credits({ handleCloseCredits }) {
     return (
         <div className='z-20 absolute w-[50vw] h-[75vh] bg-white rounded-3xl text-black'>

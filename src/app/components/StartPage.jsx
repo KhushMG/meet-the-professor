@@ -51,7 +51,7 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
         {/* Background div */}
         <div className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
 
-        {/* Make sure rest of content goes above dimmed background div */}
+        {/* Make sure rest of content goes above background div */}
         <div className="z-10 flex flex-col select-none">
 
           {/* Main Start Page Content */}
