@@ -57,7 +57,7 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
           {/* Main Start Page Content */}
           <div className="h-[90vh] flex flex-col justify-center items-center text-8xl pt-[10vh]">
             <div id='title'> Prof-iler </div>
-            <button onClick={handleGameStart} className="text-7xl mt-[1rem] ease-in-out duration-150 hover:scale-105 hover:font-[150] hover:underline hover:decoration-wavy hover:decoration-1 hover:underline-offset-[0.5rem]"> Start </button>
+            <button onClick={handleGameStart} className="text-7xl text-yellow-500 mt-[1rem] ease-in-out duration-150 hover:scale-105 hover:text-purple-800 hover:font-[300]"> Start </button>
             <div className="text-5xl mt-[1rem]">
               <button onClick={decrementDifficulty} className={`${difficulty === 'Easy' ? 'opacity-50 cursor-default' : ''}`}>&lt;</button>
               <span ref={difficultyRef} style={{ margin: `0 ${(225 - offset) / 2}px`}}>{difficulty}</span>
