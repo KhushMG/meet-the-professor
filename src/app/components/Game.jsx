@@ -7,8 +7,8 @@ import { useEffect, useState } from 'react';
 export default function Game({ difficulty }) {
   useGSAP(() => {
     const tl = gsap.timeline({});
-    tl.set('#background', { delay: 1.5, filter: 'brightness(1)', onComplete: playLightSwitchAudio })
-      .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.75');
+    tl.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio }, '>=1.5')
+      .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '>=0.75');
   })
 
   const lightSwitchAudio = new Audio('/lightswitch.mp3');

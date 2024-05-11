@@ -54,7 +54,7 @@ export default function Dialogue({ textContent }) {
       onComplete: () => {
         dialogueComplete.play();
       },
-    }, '+=3');
+    }, '>=5');
   }, [textContent]);
 
   return (
