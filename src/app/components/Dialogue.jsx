@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useState, useRef, useEffect } from 'react';
 
-export default function Dialogue({ textContent }) {
+export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   const [chars, setChars] = useState([]);
   const text = textContent;
 
@@ -21,8 +21,8 @@ export default function Dialogue({ textContent }) {
     return charArray;
   }
 
-  const dialoguePlaying = new Audio('/beep.mp3');
-  const dialogueComplete = new Audio('/dialoguecomplete.mp3');
+  const dialoguePlaying = new Audio('/audio/beep.mp3');
+  const dialogueComplete = new Audio('/audio/dialoguecomplete.mp3');
   dialoguePlaying.volume = 0.5;
   dialogueComplete.volume = 0.5
 
@@ -30,7 +30,8 @@ export default function Dialogue({ textContent }) {
   useGSAP(() => {
     const animatedElements = gsap.utils.toArray('.js-animateText');
     let idx = 0;
-    gsap.from(animatedElements, {
+    let animation = gsap.from(animatedElements, {
+      paused: true,
       duration: 0.01,
       opacity: 0,
       stagger: {
@@ -54,11 +55,13 @@ export default function Dialogue({ textContent }) {
       onComplete: () => {
         dialogueComplete.play();
       },
-    }, '>=5');
+    }, '>=3');
+
+    setDialogueAnimationTrigger(animation);
   }, [textContent]);
 
   return (
-    <div className="w-[75vw] h-[30vh] bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[4rem] overflow-y-scroll no-scrollbar">
+    <div className="w-[75vw] h-[30vh] bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[3rem] overflow-y-scroll no-scrollbar">
       {chars.map((word, idx1) => (
         <div className="inline-block" key={idx1}>
           {word.map((char, idx2) => (

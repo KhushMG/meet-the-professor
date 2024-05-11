@@ -5,14 +5,19 @@ import Dialogue from "./Dialogue";
 import { useEffect, useState } from 'react';
 
 export default function Game({ difficulty }) {
+  const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
+  
   useGSAP(() => {
     const tl = gsap.timeline({});
     tl.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio }, '>=1.5')
-      .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '>=0.75');
-  })
+      .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '>=0.75')
+      .call(() => {
+        if(dialogueAnimationTrigger !== null) dialogueAnimationTrigger.play();
+      }, null, '+=1');
+  }, [dialogueAnimationTrigger])
 
-  const lightSwitchAudio = new Audio('/lightswitch.mp3');
-  const dialogueOpenAudio = new Audio('/dialogueopen.mp3');
+  const lightSwitchAudio = new Audio('/audio/lightswitch.mp3');
+  const dialogueOpenAudio = new Audio('/audio/dialogueopen.mp3');
   lightSwitchAudio.volume = 0.4;
   dialogueOpenAudio.volume = 0.5;
   const playLightSwitchAudio = () => { lightSwitchAudio.play() };
@@ -28,7 +33,12 @@ export default function Game({ difficulty }) {
       <div className="z-10 flex flex-col justify-end items-center select-none">
 
         {/* Dialogue Box */}
-        <div id='dialogue' className="fixed"> <Dialogue textContent={"Of course! I'm here to help you tackle those key concepts you're worried about."} /> </div>
+        <div id='dialogue' className="fixed">
+          <Dialogue
+            textContent={"Of course! I'm here to help you tackle those key concepts you're worried about."}
+            setDialogueAnimationTrigger={setDialogueAnimationTrigger}
+          />
+        </div>
 
       </div>
     </div>
