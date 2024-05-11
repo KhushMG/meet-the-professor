@@ -4,69 +4,77 @@ import sweccLogo from "../assets/SWECC_LOGO.png";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useState, useEffect, useRef } from 'react';
+import Credits from './Credits';
 
-export default function StartPage() {
+export default function StartPage({ handleGameStart, handleSetDifficulty, difficulty }) {
 
   // Title pulsing animation
   useGSAP(() => {
     const tl = gsap.timeline({repeat: -1, repeatDelay: 0});
-    tl.to('#title', {scale: 1.1, duration: 1, ease: 'power1.inOut'});
-    tl.to('#title', {scale: 1, duration: 1, ease: 'power1.inOut'});
+    tl.to('#title', {scale: 1.05, fontWeight: '150', duration: 1, ease: 'power1.inOut'});
+    tl.to('#title', {scale: 1, fontWeight: 100, duration: 1, ease: 'power1.inOut'});
   });
 
   // Set difficulty logic
   const difficulties = ['Easy', 'Medium', 'Hard'];
-  const [difficulty, setDifficulty] = useState(difficulties[0]);
   const decrementDifficulty = () => {
     const idx = difficulties.indexOf(difficulty);
     if((idx - 1) >= 0) {
-      setDifficulty(difficulties[idx - 1]);
+      handleSetDifficulty(difficulties[idx - 1]);
     }
-  }
+  };
   const incrementDifficulty = () => {
     const idx = difficulties.indexOf(difficulty);
     if((idx + 1) <= 2) {
-      setDifficulty(difficulties[idx + 1]);
+      handleSetDifficulty(difficulties[idx + 1]);
     }
-  }
+  };
 
   // Getting difficult text content offset to prevent arrows from moving around
   const difficultyRef = useRef(null);
   const [offset, setOffset] = useState(0);
   useEffect(() => {
     if(difficultyRef.current) {
-      setOffset(difficultyRef.current.offsetWidth)
-      console.log(difficultyRef.current.offsetWidth)
+      setOffset(difficultyRef.current.offsetWidth);
+      console.log('Current offset:', difficultyRef.current.offsetWidth);
     }
   }, [difficulty]);
 
+  // Credits pop-up logic
+  const [creditsOpen, setCreditsOpen] = useState(false);
+  const openCredits = () => { setCreditsOpen(true); };
+  const closeCredits = () => { setCreditsOpen(false); };
+
   return (
     <>
-      <div className="relative h-screen flex items-center justify-center">
+      <div className="relative h-screen flex items-center justify-center text-white font-thin">
         {/* Background div */}
         <div className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
 
         {/* Make sure rest of content goes above dimmed background div */}
-        <div className="z-10 flex flex-col text-white font-thin select-none">
+        <div className="z-10 flex flex-col select-none">
 
           {/* Main Start Page Content */}
           <div className="h-[90vh] flex flex-col justify-center items-center text-8xl pt-[10vh]">
             <div id='title'> Prof-iler </div>
-            <div className="text-7xl mt-[2rem]"> Start </div>
+            <button onClick={handleGameStart} className="text-7xl mt-[1rem] ease-in-out duration-150 hover:scale-105 hover:font-[150] hover:underline hover:decoration-wavy hover:decoration-1 hover:underline-offset-[0.5rem]"> Start </button>
             <div className="text-5xl mt-[1rem]">
-              <span onClick={decrementDifficulty} className={`${difficulty === 'Easy' ? 'opacity-50 cursor-default' : 'cursor-pointer'}`}>&lt;</span>
-              <span ref={difficultyRef} style={{ margin: `0 ${(250 - offset) / 2}px`}}>{difficulty}</span>
-              <span onClick={incrementDifficulty} className={`${difficulty === 'Hard' ? 'opacity-50 cursor-default' : 'cursor-pointer'}`}>&gt;</span>
+              <button onClick={decrementDifficulty} className={`${difficulty === 'Easy' ? 'opacity-50 cursor-default' : ''}`}>&lt;</button>
+              <span ref={difficultyRef} style={{ margin: `0 ${(225 - offset) / 2}px`}}>{difficulty}</span>
+              <button onClick={incrementDifficulty} className={`${difficulty === 'Hard' ? 'opacity-50 cursor-default' : ''}`}>&gt;</button>
             </div>
           </div>
 
-          {/* Credits */}
+          {/* Credits Text */}
           <div className="h-[10vh] w-screen flex items-center text-4xl gap-x-[1rem] pl-[2rem] pb-[2rem]">
             <Image src={sweccLogo} alt='logo' className='rounded-md h-[8vh] w-auto' />
-            <div>Credits</div>
+            <button onClick={openCredits} className={`${creditsOpen ? 'cursor-default' : 'cursor-pointer'} `}>Credits</button>
           </div>
-
         </div>
+
+        {/* Credits Window */}
+        {creditsOpen && <Credits handleCloseCredits={closeCredits} />}
+        
       </div>
     </>
   );
