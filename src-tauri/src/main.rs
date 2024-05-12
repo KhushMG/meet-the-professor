@@ -10,17 +10,63 @@ use std::collections::HashMap;
 use std::env;
 use tokio;
 use std::io;
+use lazy_static::lazy_static;
+use std::sync::Mutex;
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![greet])
+    .invoke_handler(tauri::generate_handler![greet, 
+      get_system_instructions, 
+      get_attributes,
+      call_gpt,
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
+// #[tauri::command]
+// fn greet(name: &str) -> String {
+//     format!("Hello, {}! You've been greeted from Rust!", name)
+// }
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn greet() -> String {
+    generate_initial_user_message()
+}
+
+#[tauri::command]
+fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
+  let system_instructions = format!(
+    "You are a language model acting as a college professor with the following attributes: enthusiasm ({}), helpfulness ({}), and innovation ({}). \
+    Each response you provide should reflect these attributes vividly. Remember, they include a scale from 1-5 and based on the scale this will affect your conversation personality with the student. \
+    After responding, ALWAYS provide three multiple-choice options that the student can select from to respond to you. \
+    The dialogue should be engaging yet straightforward, suitable for a gamified 'rate my professor' experience. Ensure the conversation includes a total of 10 messages.",
+    attributes["enthusiasm"],
+    attributes["helpfulness"],
+    attributes["innovation"]
+  );
+
+  system_instructions
+}
+
+#[tauri::command]
+fn get_attributes() -> HashMap<String, i32> {
+  let mut rng = rand::thread_rng();
+  let mut attributes = HashMap::new();
+  
+  attributes.insert("enthusiasm".to_string(), rng.gen_range(1..=5));
+  attributes.insert("helpfulness".to_string(), rng.gen_range(1..=5));
+  attributes.insert("innovation".to_string(), rng.gen_range(1..=5));
+
+  attributes
+}
+
+#[tauri::command]
+async fn call_gpt(messages: Value) -> Result<String, String> {
+  match get_gpt_response(&messages).await {
+      Ok(text) => Ok(text),
+      Err(e) => Err(e.to_string())
+  }
 }
 
 #[tokio::main]
@@ -63,7 +109,6 @@ async fn interactive_conversation() {
       attributes["innovation"]
   );
   
-
   println!(
       "Attributes: (Enthusiasm: {}, Helpfulness: {}, Innovation: {})",
       attributes["enthusiasm"], attributes["helpfulness"], attributes["innovation"]
@@ -75,10 +120,9 @@ async fn interactive_conversation() {
 
   let mut messages = json!([{"role": "system", "content": system_instructions}, {"role": "user", "content": user_message }]);
 
-  for index in 0..5 {  // Adjusted for 5 total exchanges including the initial message
+  for _ in 0..5 {  // Adjusted for 5 total exchanges including the initial message
 
       let response = process_gpt_response(&messages).await;
-      // println!("Professor says: {}", response);
 
       if let Ok(response_object) = serde_json::from_str::<serde_json::Value>(&response) {
           if let Some(choices) = response_object["choices"].as_array() {
@@ -94,9 +138,6 @@ async fn interactive_conversation() {
               }
           }
       }
-      
-
-
 
       if let Some(messages_array) = messages.as_array_mut() {
           if messages_array.len() >= 3 {
@@ -121,10 +162,7 @@ async fn interactive_conversation() {
           messages_array.push(json!({"role": "user", "content": input}));
       }
 
-      // println!("{}", messages);
-
   }
-
 }
 
 async fn process_gpt_response(messages: &Value) -> String {
@@ -134,7 +172,6 @@ async fn process_gpt_response(messages: &Value) -> String {
   }
 }
 
-// add message here 
 async fn get_gpt_response(messages: &Value) -> Result<String, reqwest::Error> {
   dotenv().ok();
   let api_key = env::var("API_KEY").expect("API_KEY not found");
