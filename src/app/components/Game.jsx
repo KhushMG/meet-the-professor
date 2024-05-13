@@ -7,10 +7,19 @@ import Image from 'next/image';
 import { invoke } from "@tauri-apps/api";
 
 export default function Game({ difficulty }) {
-  const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
+  // Game setup states
   const [professor, setProfessor] = useState('');
+  const [attributes, setAttributes] = useState({});
+  const [systemInstructions, setSystemInstructions] = useState('');
+
+  // Dialogue animation states
+  const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
   const [textContent, setTextContent] = useState('');
   const dialogueRef = useRef(null);
+
+  // Game logic states
+  const [isStudentTurn, setIsStudentTurn] = useState(false);
+  const [isTeacherTurn, setIsTeacherTurn] = useState(true);
 
 
   // Audios used in animation
@@ -32,6 +41,22 @@ export default function Game({ difficulty }) {
     setProfessor(professor);
     console.log('Chosen Professor:', professor);
 
+    // Generate professor attributes
+    const getAttributes = async () => {
+      const attributes = await invoke('get_attributes');
+      setAttributes(attributes);
+      console.log(attributes);
+
+      // Call getSystemInstructions after attributes is set
+      const getSystemInstructions = async () => {
+        const systemInstructions = await invoke('get_system_instructions', { attributes });
+        setSystemInstructions(systemInstructions);
+        console.log(systemInstructions);
+      };
+      getSystemInstructions();
+    };
+    getAttributes();
+
     // Generate student initial message
     const fetchStudentInitialMessage = async () => {
       const studentInitialMessage = await invoke('generate_initial_user_message');
@@ -41,7 +66,7 @@ export default function Game({ difficulty }) {
     fetchStudentInitialMessage();
   }, []);
   
-
+  
   // Initial game start animation
   useGSAP(() => {
     const gameStartTL = gsap.timeline({ delay: 1.5 });
@@ -80,22 +105,35 @@ export default function Game({ difficulty }) {
         dialogueAnimationTrigger.play();
       }
     }, null, '+=0.3')
-   }, [textContent]);
+  }, [textContent]);
 
-  // Add event listener for 'Enter' key
+
+  // Advance dialogue logic
   useEffect(() => {
-    const handleEnterKey = (event) => {
-      if (event.code === 'Enter') {
-        setTextContent('Balls');
-      }
+
+    const swapTurns = () => {
+      setIsStudentTurn(!isStudentTurn);
+      setIsTeacherTurn(!isTeacherTurn);
     };
 
-    document.addEventListener('keydown', handleEnterKey);
+    // Set textContent to next dialogue message in here
+    const handleAdvanceDialogue = (event) => {
+      if (event.code === 'Enter') {
+        if(isTeacherTurn) {
+
+        }
+
+        swapTurns();
+      }
+      console.log(textContent);
+    };
+
+    document.addEventListener('keydown', handleAdvanceDialogue);
 
     return () => {
-      document.removeEventListener('keydown', handleEnterKey);
+      document.removeEventListener('keydown', handleAdvanceDialogue);
     };
-  }, []);
+  }, [textContent, isTeacherTurn, isStudentTurn]);
   
 
   return (
