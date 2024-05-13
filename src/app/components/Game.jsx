@@ -11,6 +11,7 @@ export default function Game({ difficulty }) {
   const [professor, setProfessor] = useState('');
   const [attributes, setAttributes] = useState({});
   const [systemInstructions, setSystemInstructions] = useState('');
+  const [messages, setMessages] = useState([]);
 
   // Dialogue animation states
   const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
@@ -19,7 +20,10 @@ export default function Game({ difficulty }) {
 
   // Game logic states
   const [isStudentTurn, setIsStudentTurn] = useState(false);
-  const [isTeacherTurn, setIsTeacherTurn] = useState(true);
+  const [isProfessorTurn, setIsProfessorTurn] = useState(true);
+  const [optionA, setOptionA] = useState('');
+  const [optionB, setOptionB] = useState('');
+  const [optionC, setOptionC] = useState('');
 
 
   // Audios used in animation
@@ -41,31 +45,30 @@ export default function Game({ difficulty }) {
     setProfessor(professor);
     console.log('Chosen Professor:', professor);
 
-    // Generate professor attributes
-    const getAttributes = async () => {
+    // Generate professor attributes and wait for it to complete
+    const setupGameStart = async () => {
       const attributes = await invoke('get_attributes');
       setAttributes(attributes);
       console.log(attributes);
 
       // Call getSystemInstructions after attributes is set
-      const getSystemInstructions = async () => {
-        const systemInstructions = await invoke('get_system_instructions', { attributes });
-        setSystemInstructions(systemInstructions);
-        console.log(systemInstructions);
-      };
-      getSystemInstructions();
-    };
-    getAttributes();
+      const systemInstructions = await invoke('get_system_instructions', { attributes });
+      setSystemInstructions(systemInstructions);
+      // console.log(systemInstructions);
+      setMessages(messages.push({ role: "system", content: systemInstructions }));
 
-    // Generate student initial message
-    const fetchStudentInitialMessage = async () => {
+      // Generate student initial message after getSystemInstructions is done
       const studentInitialMessage = await invoke('generate_initial_user_message');
       setTextContent(studentInitialMessage);
-      console.log(studentInitialMessage);
+      // console.log(textContent);
+      setMessages(messages.push({ role: "user", content: studentInitialMessage }));
+
+      console.log('System:', messages[0].content);
+      console.log('User:', messages[1].content);
     };
-    fetchStudentInitialMessage();
+    setupGameStart();
   }, []);
-  
+
   
   // Initial game start animation
   useGSAP(() => {
@@ -92,7 +95,7 @@ export default function Game({ difficulty }) {
     // Professor response to student generated in dialogue box
 
 
-    // Student dialouge options animated onto chalkboard
+    // Student dialogue options animated onto chalkboard
 
   }, []);
 
@@ -110,22 +113,49 @@ export default function Game({ difficulty }) {
 
   // Advance dialogue logic
   useEffect(() => {
-
     const swapTurns = () => {
-      setIsStudentTurn(!isStudentTurn);
-      setIsTeacherTurn(!isTeacherTurn);
+      setIsStudentTurn((prevState) => !prevState);
+      setIsProfessorTurn((prevState) => !prevState);
     };
 
+    const getGPTResponse = async () => {
+      const gptResponse = await invoke('call_gpt', { messages: messages });
+      const gptData = JSON.parse(gptResponse);
+
+      const profResponse = gptData.choices[0].message.content;
+      const a = Math.max(profResponse.indexOf('A)'), profResponse.indexOf('A.'));
+      const b = Math.max(profResponse.indexOf('B)'), profResponse.indexOf('B.'));
+      const c = Math.max(profResponse.indexOf('C)'), profResponse.indexOf('C.'));
+
+      const optionA = profResponse.slice(a, b - 2);
+      const optionB = profResponse.slice(b, c - 2);
+      const optionC = profResponse.slice(c, profResponse.length - 1);
+      const profMessage = profResponse.slice(0, a).replace('\n', '')
+
+      setOptionA(optionA);
+      setOptionB(optionB);
+      setOptionC(optionC);
+      setTextContent(profMessage);
+
+      const copyOfMessages = [...messages, { "role": "assistant", "content": profMessage }];
+      setMessages(copyOfMessages);
+
+      console.log(profMessage);
+      console.log(optionA);
+      console.log(optionB);
+      console.log(optionC);
+
+      swapTurns();
+    }
+    
     // Set textContent to next dialogue message in here
     const handleAdvanceDialogue = (event) => {
       if (event.code === 'Enter') {
-        if(isTeacherTurn) {
-
+        if(isProfessorTurn) {
+          getGPTResponse();
         }
-
-        swapTurns();
+        else { console.log('solved') }
       }
-      console.log(textContent);
     };
 
     document.addEventListener('keydown', handleAdvanceDialogue);
@@ -133,7 +163,7 @@ export default function Game({ difficulty }) {
     return () => {
       document.removeEventListener('keydown', handleAdvanceDialogue);
     };
-  }, [textContent, isTeacherTurn, isStudentTurn]);
+  }, [isProfessorTurn]);
   
 
   return (

@@ -64,7 +64,7 @@ fn get_attributes() -> HashMap<String, i32> {
   attributes
 }
 
-// once per professor
+// multiple times per professor
 #[tauri::command]
 async fn call_gpt(messages: Value) -> Result<String, String> {
   match get_gpt_response(&messages).await {
@@ -108,7 +108,7 @@ async fn interactive_conversation() {
   let system_instructions = format!(
       "You are a language model acting as a college professor with the following attributes: enthusiasm ({}), helpfulness ({}), and innovation ({}). 
       Each response you provide should reflect these attributes vividly. Remember, they include a scale from 1-5 and based on the scale this will affect your conversation personality with the student. 
-      After responding, ALWAYS provide three multiple-choice options that the student can select from to respond to you. Always start and format the options as A) B) and C). 
+      After responding, ALWAYS provide three multiple-choice options that the student can select from to respond to you. Always start and format the options as A) B) and C). Keep your response at or under 30 words total. No emojis.
       The dialogue should be engaging yet straightforward, suitable for a gamified 'rate my professor' experience. Ensure the conversation includes a total of 10 messages.",
       attributes["enthusiasm"],
       attributes["helpfulness"],
@@ -190,7 +190,7 @@ async fn get_gpt_response(messages: &Value) -> Result<String, reqwest::Error> {
       .header("Authorization", format!("Bearer {}", api_key))
       .json(&json!({
           "model": "gpt-4-turbo",
-          "messages": messages
+          "messages": messages,
           // messages: [{"role": "system", "content": system_instructions}, {"role": "user", "content": user_message }]
       }))
       .send()
