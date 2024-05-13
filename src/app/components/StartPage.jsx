@@ -5,7 +5,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useState, useEffect, useRef } from 'react';
 import Credits from './Credits';
-import RustTest from './RustTest';
 
 export default function StartPage({ handleGameStart, handleSetDifficulty, difficulty }) {
 

@@ -10,8 +10,8 @@ use std::collections::HashMap;
 use std::env;
 use tokio;
 use std::io;
-use lazy_static::lazy_static;
-use std::sync::Mutex;
+// use lazy_static::lazy_static;
+// use std::sync::Mutex;
 
 fn main() {
   tauri::Builder::default()
@@ -19,6 +19,7 @@ fn main() {
       get_system_instructions, 
       get_attributes,
       call_gpt,
+      generate_initial_user_message,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
@@ -34,6 +35,7 @@ fn greet() -> String {
     generate_initial_user_message()
 }
 
+// once per professor
 #[tauri::command]
 fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
   let system_instructions = format!(
@@ -49,6 +51,7 @@ fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
   system_instructions
 }
 
+// once per professor
 #[tauri::command]
 fn get_attributes() -> HashMap<String, i32> {
   let mut rng = rand::thread_rng();
@@ -61,6 +64,7 @@ fn get_attributes() -> HashMap<String, i32> {
   attributes
 }
 
+// once per professor
 #[tauri::command]
 async fn call_gpt(messages: Value) -> Result<String, String> {
   match get_gpt_response(&messages).await {
@@ -74,6 +78,8 @@ async fn activate_conversation() {
     interactive_conversation().await;
 }
 
+// once per professor
+#[tauri::command]
 fn generate_initial_user_message() -> String {
   let scenarios: Vec<String> = vec![
       "Hello Professor, I've been struggling with the latest topics in the course. Can you help?".to_string(),

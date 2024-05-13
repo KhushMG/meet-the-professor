@@ -4,11 +4,14 @@ import { useGSAP } from "@gsap/react";
 import Dialogue from "./Dialogue";
 import { professors } from '../professors';
 import Image from 'next/image';
+import { invoke } from "@tauri-apps/api";
 
 export default function Game({ difficulty }) {
   const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
   const [professor, setProfessor] = useState('');
-  const [textContent, setTextContent] = useState("Of course! I'm here to help you tackle those key concepts you're worried about.");
+  const [textContent, setTextContent] = useState('');
+  const dialogueRef = useRef(null);
+
 
   // Audios used in animation
   const lightSwitchAudio = new Audio('/audio/lightswitch.mp3');
@@ -21,12 +24,23 @@ export default function Game({ difficulty }) {
   const playDialogueOpenAudio = () => { dialogueOpenAudio.play(); };
   const playFootstepAudio = () => { footstepAudio.play(); };
   
-  // Select random professor
+
+  // For each round start (when professor changes)
   useEffect(() => {
+    // Generate a new random professor
     const professor = professors[Math.floor((Math.random() * professors.length))];
     setProfessor(professor);
     console.log('Chosen Professor:', professor);
+
+    // Generate student initial message
+    const fetchStudentInitialMessage = async () => {
+      const studentInitialMessage = await invoke('generate_initial_user_message');
+      setTextContent(studentInitialMessage);
+      console.log(studentInitialMessage);
+    };
+    fetchStudentInitialMessage();
   }, []);
+  
 
   // Initial game start animation
   useGSAP(() => {
@@ -39,6 +53,7 @@ export default function Game({ difficulty }) {
     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
   }, []);
   
+
   // Recursive game animation
   const tl = gsap.timeline({ delay: 2.5 });
   const tlRef = useRef(tl);
@@ -56,6 +71,7 @@ export default function Game({ difficulty }) {
 
   }, []);
 
+
   // Dialogue animation
   useGSAP(() => {
     tlRef.current.call(() => {
@@ -64,22 +80,24 @@ export default function Game({ difficulty }) {
         dialogueAnimationTrigger.play();
       }
     }, null, '+=0.3')
-  }, [textContent, dialogueAnimationTrigger]);
+   }, [textContent]);
 
-  // useGSAP(() => {
-  //   const tl = gsap.timeline({});
+  // Add event listener for 'Enter' key
+  useEffect(() => {
+    const handleEnterKey = (event) => {
+      if (event.code === 'Enter') {
+        setTextContent('Balls');
+      }
+    };
 
-  //   // Lights turn on
-  //   tl.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio }, '>=1.5')
-  //     // Dialogue box appears from off screen
-  //     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '>=0.75')
+    document.addEventListener('keydown', handleEnterKey);
 
-  //     // Dialogue starts generating
-  //     .call(() => {
-  //       if(dialogueAnimationTrigger !== null) dialogueAnimationTrigger.play();
-  //     }, null, '+=1');
-  // }, [dialogueAnimationTrigger])
+    return () => {
+      document.removeEventListener('keydown', handleEnterKey);
+    };
+  }, []);
   
+
   return (
     <div className="relative h-screen flex justify-center text-red-500 font-bold">
 
@@ -102,8 +120,9 @@ export default function Game({ difficulty }) {
         {/* Dialogue Box */}
         <div id='dialogue' className="fixed">
           <Dialogue
-            textContent={textContent}
+            textContent={textContent.toString()}
             setDialogueAnimationTrigger={setDialogueAnimationTrigger}
+            dialogueRef={dialogueRef}
           />
         </div>
 
