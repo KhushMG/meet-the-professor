@@ -23,6 +23,7 @@ export default function Game({ difficulty }) {
   const [optionB, setOptionB] = useState('');
   const [optionC, setOptionC] = useState('');
   const [userChoice, setUserChoice] = useState('');
+  const [isConversationOver, setIsConversationOver] = useState(false);
 
 
   // Audios used in animation
@@ -136,11 +137,10 @@ export default function Game({ difficulty }) {
       swapTurns();
     } else {
       // HAVE PROFESSOR WALK OUT OF CLASSROOM AT END OF CONVERSATION
-      
       setTextContent(profResponse);
       setIsProfessorTurn(false);
       setIsStudentTurn(false);
-      console.log('Conversation finished')
+      console.log('Conversation finished');
     }
   };
   
@@ -165,10 +165,8 @@ export default function Game({ difficulty }) {
       if ((event.button === 0) && isProfessorTurn) {
         getGPTResponse();
       }
-
-      // IF CONVERSATION IS OVER, SHOW GUESSING ATTRIBUTES WINDOW
-      else if(!isProfessorTurn && !isStudentTurn) {
-
+      else if(!isStudentTurn && !isProfessorTurn) { 
+        setIsConversationOver(true);
       }
     };
 
@@ -187,7 +185,44 @@ export default function Game({ difficulty }) {
       {/* Background div */}
       <div id='background' className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
 
-      {/* Make sure rest of content goes above background div */}
+      {isConversationOver ?
+        <div className='z-20'>
+          hello balls
+        </div>
+
+        :
+
+        <div className="z-10 flex flex-col justify-end items-center select-none">
+
+          {isStudentTurn &&
+            <div className=' h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed'>
+              <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
+              <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
+              <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
+            </div>
+          }
+          {/* Professor Image */}
+          <Image
+            id='professorImg'
+            src={`/images/${professor}.png`}
+            alt='Image of professor'
+            height={1000}
+            width={500}
+            className='fixed mr-[40vw] -mb-[10vh]'
+          />
+
+          {/* Dialogue Box */}
+          <div id='dialogue' className="fixed">
+            <Dialogue
+              textContent={textContent.toString()}
+              setDialogueAnimationTrigger={setDialogueAnimationTrigger}
+            />
+          </div>
+        </div>
+       
+      }
+
+{/*       
       <div className="z-10 flex flex-col justify-end items-center select-none">
 
         {isStudentTurn &&
@@ -197,9 +232,7 @@ export default function Game({ difficulty }) {
             <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
           </div>
         }
-
-
-        {/* Professor Image */}
+        
         <Image
           id='professorImg'
           src={`/images/${professor}.png`}
@@ -209,15 +242,14 @@ export default function Game({ difficulty }) {
           className='fixed mr-[40vw] -mb-[10vh]'
         />
 
-        {/* Dialogue Box */}
+       
         <div id='dialogue' className="fixed">
           <Dialogue
             textContent={textContent.toString()}
             setDialogueAnimationTrigger={setDialogueAnimationTrigger}
           />
         </div>
-
-      </div>
+      </div> */}
     </div>
   );
 }
