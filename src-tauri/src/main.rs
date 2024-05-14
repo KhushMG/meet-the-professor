@@ -145,7 +145,7 @@ async fn get_gpt_response(messages: &Value) -> Result<String, reqwest::Error> {
       .post(url)
       .header("Authorization", format!("Bearer {}", api_key))
       .json(&json!({
-          "model": "gpt-4o", // "model": "gpt-4-turbo",
+          "model": "gpt-4o", 
           "messages": messages,
         //   "max_tokens": 256,
           // messages: [{"role": "system", "content": system_instructions}, {"role": "user", "content": user_message }]
