@@ -120,10 +120,10 @@ export default function Game({ difficulty }) {
     console.log(match);
   
     if (match) {
-      const profMessage = profResponse.slice(0, match.index).trim();
-      const optionA = match[0].substring(3);
-      const optionB = match[1].substring(3);
-      const optionC = match[2].substring(3);
+      const profMessage = profResponse.slice(0, profResponse.indexOf(match[0]));
+      const optionA = match[0];
+      const optionB = match[1];
+      const optionC = match[2];
   
       setOptionA(optionA);
       setOptionB(optionB);
@@ -188,9 +188,9 @@ export default function Game({ difficulty }) {
 
         {isStudentTurn &&
           <div className='h-screen w-[30vw] ml-[20rem] mb-[5rem] flex flex-col gap-y-[1rem] justify-center text-3xl text-white font-semibold fixed'>
-            <button id='A' onClick={() => handleSelectedUserChoice('A')}>A) {optionA}</button>
-            <button id='B' onClick={() => handleSelectedUserChoice('B')}>B) {optionB}</button>
-            <button id='C' onClick={() => handleSelectedUserChoice('C')}>C) {optionC}</button>
+            <button id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
+            <button id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
+            <button id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
           </div>
         }
 
