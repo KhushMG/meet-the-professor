@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+// Imports
 use dotenv::dotenv;
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -8,14 +9,10 @@ use reqwest::Client;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::env;
-// use tokio;
-// use std::io;
-// use lazy_static::lazy_static;
-// use std::sync::Mutex;
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![greet, 
+    .invoke_handler(tauri::generate_handler![
       get_system_instructions, 
       get_attributes,
       call_gpt,
@@ -25,17 +22,7 @@ fn main() {
     .expect("error while running tauri application");
 }
 
-// #[tauri::command]
-// fn greet(name: &str) -> String {
-//     format!("Hello, {}! You've been greeted from Rust!", name)
-// }
-
-#[tauri::command]
-fn greet() -> String {
-    generate_initial_user_message()
-}
-
-// once per professor
+// Prompting GPT w/ context and attributes
 #[tauri::command]
 fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
   let system_instructions = format!(
@@ -62,7 +49,7 @@ fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
   system_instructions
 }
 
-// once per professor
+// Creating a hashmap with randomized professor attributes 
 #[tauri::command]
 fn get_attributes() -> HashMap<String, i32> {
   let mut rng = rand::thread_rng();
@@ -75,7 +62,7 @@ fn get_attributes() -> HashMap<String, i32> {
   attributes
 }
 
-// multiple times per professor
+// Calls the function that makes the API call to GPT
 #[tauri::command]
 async fn call_gpt(messages: Value) -> Result<String, String> {
   match get_gpt_response(&messages).await {
@@ -84,7 +71,7 @@ async fn call_gpt(messages: Value) -> Result<String, String> {
   }
 }
 
-// once per professor
+// Randomly selects one message from a vector of initial user messages
 #[tauri::command]
 fn generate_initial_user_message() -> String {
   let scenarios: Vec<String> = vec![
@@ -104,6 +91,7 @@ fn generate_initial_user_message() -> String {
   scenario
 }
 
+// Makes the API call to GPT API, using GPT 4o :O
 async fn get_gpt_response(messages: &Value) -> Result<String, reqwest::Error> {
   dotenv().ok();
   let api_key = env::var("API_KEY").expect("API_KEY not found");
