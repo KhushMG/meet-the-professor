@@ -38,10 +38,11 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   // useGSAP(() => {
   //   const animatedElements = gsap.utils.toArray('.js-animateText');
   //   let idx = 0;
-  //   let animation = gsap.from(animatedElements, {
-  //     paused: true,
+  //   let animation = gsap.to(animatedElements, {
+  //     // paused: true,
+  //     // delay:0,
   //     duration: 0.01,
-  //     opacity: 0,
+  //     opacity: 1,
   //     stagger: {
   //       each: 0.05,
   //       onStart: () => {
@@ -65,21 +66,27 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   //     },
   //   }, '>=3');
 
-  //   setDialogueAnimationTrigger(animation);
+  //   // setDialogueAnimationTrigger(animation);
+  //   animation.play();
   // }, [textContent]);
 
   return (
-    <div className="w-[75vw] h-[30vh] bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[3rem] overflow-y-scroll no-scrollbar">
-      {chars.map((word, idx1) => (
-        <div className="inline-block" key={idx1}>
-          {word.map((char, idx2) => (
-            <span className="js-animateText relative inline-block font-light" key={idx2}>
-              {char}
-            </span>
-          ))}
-          <span>{'\u00A0'}</span>
-        </div>
-      ))}
+    <div className="w-[75vw] h-[30vh] flex flex-col justify-between bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[2.5rem] overflow-y-scroll no-scrollbar">
+      <div>
+        {chars.map((word, idx1) => (
+          <div className="inline-block" key={idx1}>
+            {word.map((char, idx2) => (
+              <span className="js-animateText relative inline-block font-light" key={idx2}>
+                {char}
+              </span>
+            ))}
+            <span>{'\u00A0'}</span>
+          </div>
+        ))}
+      </div>
+      <div className='flex justify-end w-full h-fit'>
+        <div className='text-[2rem] mr-4 italic'> click to continue </div>
+      </div>
     </div>
   );
 }

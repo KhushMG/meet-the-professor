@@ -138,6 +138,8 @@ export default function Game({ difficulty }) {
       // console.log(optionC);
       swapTurns();
     } else {
+      // HAVE PROFESSOR WALK OUT OF CLASSROOM AT END OF CONVERSATION
+      
       setTextContent(profResponse);
       setIsProfessorTurn(false);
       setIsStudentTurn(false);
@@ -163,21 +165,24 @@ export default function Game({ difficulty }) {
   useEffect(() => {
     // Set textContent to next dialogue message in here
     const handleAdvanceDialogue = (event) => {
-      if ((event.code === 'Enter') && isProfessorTurn) {
+      if ((event.button === 0) && isProfessorTurn) {
         getGPTResponse();
       }
     };
 
-    document.addEventListener('keydown', handleAdvanceDialogue);
     document.addEventListener('mousedown', handleAdvanceDialogue);
 
     return () => {
-      document.removeEventListener('keydown', handleAdvanceDialogue);
       document.removeEventListener('mousedown', handleAdvanceDialogue);
     };
   }, [isProfessorTurn]);
 
   // ------------------------------------------------------------------------------------------------------------------------------
+
+  // const handleClick = ({choice}) => {
+  //   handleSelectedUserChoice(choice);
+
+  // };
 
   return (
     <div className="relative h-screen flex justify-center">
@@ -190,10 +195,13 @@ export default function Game({ difficulty }) {
       <div className="z-10 flex flex-col justify-end items-center select-none">
 
         {isStudentTurn &&
-          <div className='h-screen w-[30vw] ml-[20rem] mb-[5rem] flex flex-col gap-y-[1rem] justify-center text-3xl text-white font-semibold fixed'>
-            <button id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
-            <button id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
-            <button id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
+          <div className=' h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed'>
+            {/* <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
+            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
+            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button> */}
+            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
+            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
+            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
           </div>
         }
 

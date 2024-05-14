@@ -11,7 +11,7 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
   // Title pulsing animation
   useGSAP(() => {
     const tl = gsap.timeline({repeat: -1, repeatDelay: 0});
-    tl.to('#title', {scale: 1.05, fontWeight: '150', duration: 1, ease: 'power1.inOut'});
+    tl.to('#title', {scale: 1.05, fontWeight: '450', duration: 1, ease: 'power1.inOut'});
     tl.to('#title', {scale: 1, fontWeight: 100, duration: 1, ease: 'power1.inOut'});
   });
 
@@ -60,7 +60,12 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
             <button onClick={handleGameStart} className="text-7xl text-yellow-500 mt-[1rem] ease-in-out duration-150 hover:scale-105 hover:text-purple-800 hover:font-[300]"> Start </button>
             <div className="text-5xl mt-[1rem]">
               <button onClick={decrementDifficulty} className={`${difficulty === 'Easy' ? 'opacity-50 cursor-default' : ''}`}>&lt;</button>
-              <span ref={difficultyRef} style={{ margin: `0 ${(225 - offset) / 2}px`}}>{difficulty}</span>
+
+              <span ref={difficultyRef} style={{ margin: `0 ${(225 - offset) / 2}px`}} 
+                className={`${difficulty === 'Easy' ? 'text-green-600 font-[250]' : ''} ${difficulty === 'Medium' ? 'text-yellow-600 font-[350]' : ''} ${difficulty === 'Hard' ? 'text-red-600 font-[450]' : ''}`}
+              >
+                {difficulty}
+              </span>
               <button onClick={incrementDifficulty} className={`${difficulty === 'Hard' ? 'opacity-50 cursor-default' : ''}`}>&gt;</button>
             </div>
           </div>

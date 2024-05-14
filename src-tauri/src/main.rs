@@ -50,7 +50,9 @@ fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
     Also make sure you stay consistent with your attributes and their scale if the scale is low make sure your conversational tone is consistent with that dont switch up your tone depending on a students reply. 
     Also MAKE SURE THAT THE MULTIPLE CHOICE OPTIONS YOU GIVE ARE ONLY STUDENT RESPONSE OPTIONS NOT PROFESSOR RESPONSE OPTIONS.
     ON THE LAST MESSAGE, DONT ASK ANY FURTHER QUESTIONS IN YOUR PROFESSOR RESPONSE, CONCLUDE THE CONVERSATION.
-    INCLUDE ONE USE OF HEAVY PROFANITY EVERY RESPONSE IF TWO OUT OF THREE OF THE PROFESSOR'S ATTRIBUTES ARE EITHER 1 OR 2.
+    DO NOT INCLUDE THE PROFESSOR'S ATTRIBUTES IN THE PROFESSOR'S RESPONSE. DO NOT INCLUDE EMOJIS IN THE PROFESSOR'S RESPONSE
+    INCLUDE ONE USE OF PARTIALLY CENSORED HEAVY PROFANITY EVERY RESPONSE IF ALL OF THE PROFESSOR'S ATTRIBUTES ARE EITHER 1 OR 2.
+    MAKE KEY CONCEPTS/TOPICS UP IF NEEDED.
     Example Conversation: Professor: Welcome to today's class on creative problem solving! Are you ready to think outside the box? (DO NOT LITERALLY INCLUDE STUDENT RESPONSES) Student Responses: A) Yes, I'm excited! What's our first challenge? B) I'm not sure I'm good at this. Do you think I can really do it? C) Sounds like more buzzwords. Do we have to do group work again? ...(continue with the example conversation)...",
     attributes["enthusiasm"],
     attributes["helpfulness"],
@@ -82,11 +84,6 @@ async fn call_gpt(messages: Value) -> Result<String, String> {
   }
 }
 
-// #[tokio::main]
-// async fn activate_conversation() {
-//     interactive_conversation().await;
-// }
-
 // once per professor
 #[tauri::command]
 fn generate_initial_user_message() -> String {
@@ -106,86 +103,6 @@ fn generate_initial_user_message() -> String {
 
   scenario
 }
-
-// async fn interactive_conversation() {
-//   let mut rng = rand::thread_rng();
-//   let mut attributes = HashMap::new();
-//   attributes.insert("enthusiasm", rng.gen_range(1..=5));
-//   attributes.insert("helpfulness", rng.gen_range(1..=5));
-//   attributes.insert("innovation", rng.gen_range(1..=5));
-
-//   let system_instructions = format!(
-//       "You are a language model acting as a college professor with the following attributes: enthusiasm ({}), helpfulness ({}), and innovation ({}). 
-//       Each response you provide should reflect these attributes vividly. Remember, they include a scale from 1-5 and based on the scale this will affect your conversation personality with the student. 
-//       After responding, ALWAYS provide three multiple-choice options that the student can select from to respond to you. Always start and format the options as A) B) and C).
-//       The dialogue should be engaging yet straightforward, suitable for a gamified 'rate my professor' experience. Ensure the conversation includes a total of 10 messages.",
-//       attributes["enthusiasm"],
-//       attributes["helpfulness"],
-//       attributes["innovation"]
-//   );
-  
-//   println!(
-//       "Attributes: (Enthusiasm: {}, Helpfulness: {}, Innovation: {})",
-//       attributes["enthusiasm"], attributes["helpfulness"], attributes["innovation"]
-//   );
-
-//   let user_message: String = generate_initial_user_message();
-
-//   println!("{}", user_message);
-
-//   let mut messages = json!([{"role": "system", "content": system_instructions}, {"role": "user", "content": user_message }]);
-
-//   for _ in 0..5 {  // Adjusted for 5 total exchanges including the initial message
-
-//       let response = process_gpt_response(&messages).await;
-
-//       if let Ok(response_object) = serde_json::from_str::<serde_json::Value>(&response) {
-//           if let Some(choices) = response_object["choices"].as_array() {
-//               if let Some(first_choice) = choices.get(0) {
-//                   let professor_response = first_choice["message"]["content"].as_str().unwrap_or("Error in response format");
-
-//                   println!("Professor says: {}", professor_response);
-
-//                   // Assuming we now append the professor's response to messages for the next cycle
-//                   if let Some(messages_array) = messages.as_array_mut() {
-//                       messages_array.push(json!({"role": "assistant", "content": professor_response}));
-//                   }
-//               }
-//           }
-//       }
-
-//       if let Some(messages_array) = messages.as_array_mut() {
-//           if messages_array.len() >= 3 {
-//               messages_array.push(json!({"role": "user", "content": "This message is not part of the user input its to let you know there are 2 messages left in the conversation so finish the conversation with your next response"}));
-//           }
-  
-//           if messages_array.len() >= 8 {
-//               break;
-//           }
-//       }
-      
-//       println!("Enter your next choice:");
-//       let mut input = String::new();
-//       io::stdin()
-//           .read_line(&mut input)
-//           .expect("Failed to read line");
-//       input.trim().to_string();
-
-//       println!("Student said: {}", input);
-
-//       if let Some(messages_array) = messages.as_array_mut() {
-//           messages_array.push(json!({"role": "user", "content": input}));
-//       }
-
-//   }
-// }
-
-// async fn process_gpt_response(messages: &Value) -> String {
-//   match get_gpt_response(&messages).await {
-//       Ok(text) => text,
-//       Err(e) => e.to_string(),
-//   }
-// }
 
 async fn get_gpt_response(messages: &Value) -> Result<String, reqwest::Error> {
   dotenv().ok();
