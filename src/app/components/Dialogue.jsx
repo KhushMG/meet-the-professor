@@ -38,37 +38,35 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   // useGSAP(() => {
   //   const animatedElements = gsap.utils.toArray('.js-animateText');
   //   let idx = 0;
-  //   let animation = gsap.to(animatedElements, {
-  //     // paused: true,
-  //     // delay:0,
-  //     duration: 0.01,
-  //     opacity: 1,
-  //     stagger: {
-  //       each: 0.05,
-  //       onStart: () => {
-  //         currAnimatedElementRef.current = animatedElements[idx];
-  //         // console.log('Updated Animated Element:', currAnimatedElementRef.current);
-  //         idx++;
-
-  //         if (currAnimatedElementRef.current) {
-  //           currAnimatedElementRef.current.scrollIntoView({
-  //             behavior: 'smooth',
-  //             block: 'center',
-  //           });
-  //         }
-
-  //         dialoguePlaying.currentTime = 0;
-  //         dialoguePlaying.play();
+  //   let animation = gsap.fromTo(
+  //     animatedElements,
+  //     { opacity: 0 },
+  //     {
+  //       duration: 0.1,
+  //       opacity: 1,
+  //       stagger: {
+  //         each: 0.05,
+  //         onStart: () => {
+  //           currAnimatedElementRef.current = animatedElements[idx];
+  //           idx++;
+  //           if (currAnimatedElementRef.current) {
+  //             currAnimatedElementRef.current.scrollIntoView({
+  //               behavior: 'smooth',
+  //               block: 'center',
+  //             });
+  //           }
+  //           dialoguePlaying.currentTime = 0;
+  //           dialoguePlaying.play();
+  //         },
   //       },
-  //     },
-  //     onComplete: () => {
-  //       dialogueComplete.play();
-  //     },
-  //   }, '>=3');
+  //       onComplete: () => {
+  //         dialogueComplete.play();
+  //       },
+  //     }
+  //   );
 
-  //   // setDialogueAnimationTrigger(animation);
-  //   animation.play();
-  // }, [textContent]);
+  //   setDialogueAnimationTrigger(animation);
+  // }, [textContent, setDialogueAnimationTrigger]);
 
   return (
     <div className="w-[75vw] h-[30vh] flex flex-col justify-between bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[2.5rem] overflow-y-scroll no-scrollbar">
