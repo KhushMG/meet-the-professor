@@ -25,8 +25,24 @@ fn main() {
 // Prompting GPT w/ context and attributes
 #[tauri::command]
 fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
+  let mut attributes_list = Vec::new();
+
+  for attribute in attributes.keys() {
+    attributes_list.push(attribute.clone().to_string());
+  }
+
+  let binding = "N/A".to_string();
+  let first_key = attributes_list.get(0).unwrap_or(&binding);
+  let first_value = attributes.get(first_key).unwrap_or(&0);
+
+  let second_key = attributes_list.get(1).unwrap_or(&binding);
+  let second_value = attributes.get(second_key).unwrap_or(&0);
+
+  let third_key = attributes_list.get(2).unwrap_or(&binding);
+  let third_value = attributes.get(third_key).unwrap_or(&0);
+
   let system_instructions = format!(
-    "You are a language model acting as a college professor with the following attributes: enthusiasm ({}), helpfulness ({}), and innovation ({}). 
+    "You are a language model acting as a college professor with the following attributes: ({}) ({}), ({}) ({}), and ({}) ({}). 
     Each response you provide should reflect these attributes vividly also remember they include a scale from 1-5 and based on the scale this will affect your conversation personality with the student. 
     For example if helpfulness and innovation and enthusiasm are all low number say 1 or 2 then the professor needs to reflect those attributes at that scale. 
     Its vital that the personality of the professor is really affected by the scale of each attribute really emphasize that with the professors responses to the student so if the scale is low for helpfulness make the professor blunt and mean. 
@@ -41,9 +57,9 @@ fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
     INCLUDE ONE USE OF PARTIALLY CENSORED HEAVY PROFANITY EVERY RESPONSE IF ALL OF THE PROFESSOR'S ATTRIBUTES ARE EITHER 1 OR 2.
     MAKE KEY CONCEPTS/TOPICS UP IF NEEDED.
     Example Conversation: Professor: Welcome to today's class on creative problem solving! Are you ready to think outside the box? (DO NOT LITERALLY INCLUDE STUDENT RESPONSES) Student Responses: A) Yes, I'm excited! What's our first challenge? B) I'm not sure I'm good at this. Do you think I can really do it? C) Sounds like more buzzwords. Do we have to do group work again? ...(continue with the example conversation)...",
-    attributes["enthusiasm"],
-    attributes["helpfulness"],
-    attributes["innovation"]
+    first_key, first_value,
+    second_key, second_value,
+    third_key, third_value,
   );
 
   system_instructions
@@ -53,14 +69,40 @@ fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
 #[tauri::command]
 fn get_attributes() -> HashMap<String, i32> {
   let mut rng = rand::thread_rng();
-  let mut attributes = HashMap::new();
-  
-  attributes.insert("enthusiasm".to_string(), rng.gen_range(1..=5));
-  attributes.insert("helpfulness".to_string(), rng.gen_range(1..=5));
-  attributes.insert("innovation".to_string(), rng.gen_range(1..=5));
+  let mut first_attributes = HashMap::new();
+  let mut second_attributes = HashMap::new();
+  let mut third_attributes = HashMap::new();
+  let mut fourth_attributes = HashMap::new();
 
-  attributes
+  let mut total_attributes: Vec<HashMap<String, i32>> = Vec::new();
+  
+  first_attributes.insert("enthusiasm".to_string(), rng.gen_range(1..=5));
+  first_attributes.insert("helpfulness".to_string(), rng.gen_range(1..=5));
+  first_attributes.insert("innovation".to_string(), rng.gen_range(1..=5));
+
+  second_attributes.insert("patience".to_string(), rng.gen_range(1..=5));
+  second_attributes.insert("knowledgeability".to_string(), rng.gen_range(1..=5));
+  second_attributes.insert("engagement".to_string(), rng.gen_range(1..=5));
+
+  third_attributes.insert("clarity".to_string(), rng.gen_range(1..=5));
+  third_attributes.insert("friendliness".to_string(), rng.gen_range(1..=5));
+  third_attributes.insert("organization".to_string(), rng.gen_range(1..=5));
+
+  fourth_attributes.insert("strictness".to_string(), rng.gen_range(1..=5));
+  fourth_attributes.insert("fairness".to_string(), rng.gen_range(1..=5));
+  fourth_attributes.insert("punctuality".to_string(), rng.gen_range(1..=5));
+
+  total_attributes.push(first_attributes);
+  total_attributes.push(second_attributes);
+  total_attributes.push(third_attributes);
+  total_attributes.push(fourth_attributes);
+
+  let chosen_attributes = total_attributes
+  .choose(&mut rng);
+  
+  chosen_attributes.unwrap().clone()
 }
+
 
 // Calls the function that makes the API call to GPT
 #[tauri::command]
