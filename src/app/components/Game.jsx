@@ -115,9 +115,9 @@ export default function Game({ difficulty }) {
   
     const profResponse = gptData.choices[0].message.content;
     console.log(profResponse);
-    const optionRegex = /([AaBbCc1-3][\.\)])\s[^.]+\./g;
+    const optionRegex = /[A-C]\) [^]+?(?=(?: [A-C]\) |\n|$))/g;
     const match = profResponse.match(optionRegex);
-    console.log(match);
+    console.log('match:', match);
   
     if (match) {
       const profMessage = profResponse.slice(0, profResponse.indexOf(match[0]));
@@ -132,13 +132,16 @@ export default function Game({ difficulty }) {
   
       setMessages([...messages, { role: "assistant", content: profMessage }]);
   
-      console.log(profMessage);
-      console.log(optionA);
-      console.log(optionB);
-      console.log(optionC);
+      // console.log(profMessage);
+      // console.log(optionA);
+      // console.log(optionB);
+      // console.log(optionC);
       swapTurns();
     } else {
-      console.error("Failed to parse professor's response.");
+      setTextContent(profResponse);
+      setIsProfessorTurn(false);
+      setIsStudentTurn(false);
+      console.log('Conversation finished')
     }
   };
   
