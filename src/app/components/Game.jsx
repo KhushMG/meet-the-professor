@@ -1,15 +1,17 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, React } from 'react';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Dialogue from "./Dialogue";
 import { professors } from '../professors';
 import Image from 'next/image';
 import { invoke } from "@tauri-apps/api";
+import Form from './Form';
 
 export default function Game({ difficulty }) {
   // Game setup states
   const [professor, setProfessor] = useState('');
-  const [attributes, setAttributes] = useState({});
+  const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
+  const [keys, setKeys] = useState([]);
   const [messages, setMessages] = useState([]);
 
   // Dialogue animation states
@@ -49,7 +51,7 @@ export default function Game({ difficulty }) {
     const setupGameStart = async () => {
       const attributes = await invoke('get_attributes');
       setAttributes(attributes);
-      console.log(attributes);
+      setKeys(Object.keys(attributes));
 
       // Call getSystemInstructions after attributes is set
       const systemInstructions = await invoke('get_system_instructions', { attributes });
@@ -178,51 +180,70 @@ export default function Game({ difficulty }) {
   }, [isProfessorTurn]);
 
   // ------------------------------------------------------------------------------------------------------------------------------
-
   return (
     <div className="relative h-screen flex justify-center">
-
       {/* Background div */}
-      <div id='background' className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
+      <div
+        id="background"
+        className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]"
+      />
 
-      {isConversationOver ?
-        <div className='z-20'>
-          hello balls
+      {!isConversationOver ? (
+        // Capture User's guess on Professor's attributes
+        // Compare User's guesses to Professor's actual attribbutes
+        // Calculate accuracy score:
+
+        <div className=" h-screen w-full z-10 flex flex-col items-center justify-center">
+          <Form keys={keys}/>
         </div>
-
-        :
-
+      ) : (
         <div className="z-10 flex flex-col justify-end items-center select-none">
-
-          {isStudentTurn &&
-            <div className=' h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed'>
-              <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
-              <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
-              <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
+          {isStudentTurn && (
+            <div className=" h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed">
+              <button
+                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
+                id="A"
+                onClick={() => handleSelectedUserChoice("A")}
+              >
+                {optionA}
+              </button>
+              <button
+                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
+                id="B"
+                onClick={() => handleSelectedUserChoice("B")}
+              >
+                {optionB}
+              </button>
+              <button
+                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
+                id="C"
+                onClick={() => handleSelectedUserChoice("C")}
+              >
+                {optionC}
+              </button>
             </div>
-          }
+          )}
           {/* Professor Image */}
           <Image
-            id='professorImg'
+            id="professorImg"
             src={`/images/${professor}.png`}
-            alt='Image of professor'
+            alt="Image of professor"
             height={1000}
             width={500}
-            className='fixed mr-[40vw] -mb-[10vh]'
+            className="fixed mr-[40vw] -mb-[10vh]"
           />
 
           {/* Dialogue Box */}
-          <div id='dialogue' className="fixed">
+          <div id="dialogue" className="fixed">
             <Dialogue
               textContent={textContent.toString()}
               setDialogueAnimationTrigger={setDialogueAnimationTrigger}
             />
           </div>
         </div>
-       
-      }
+      )}
 
-{/*       
+      {/*       
       <div className="z-10 flex flex-col justify-end items-center select-none">
 
         {isStudentTurn &&
