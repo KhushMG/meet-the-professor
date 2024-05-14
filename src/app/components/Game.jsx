@@ -67,18 +67,6 @@ export default function Game({ difficulty }) {
     setupGameStart();
   }, []);
 
-  
-  // Initial game start animation
-  // useGSAP(() => {
-  //   const gameStartTL = gsap.timeline({ delay: 1.5 });
-
-  //   // Lights turn on
-  //   gameStartTL.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio })
-
-  //   // Dialogue box appears from offscreen
-  //   .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
-  // }, []);
-
   const tl = gsap.timeline({ delay: 1.5 });
   const tlRef = useRef(tl);
   useGSAP(() => {
@@ -96,11 +84,6 @@ export default function Game({ difficulty }) {
     // Professor walks from offscreen (from right to left side)
     tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
 
-    // Student initial response generated in dialogue box
-    // tlRef.current.call(() => {
-    //   if(dialogueAnimationTrigger.current) dialogueAnimationTrigger.current.play();
-    // }, null, '+=0.75');
-
     // Professor response to student generated in dialogue box
     // Student dialogue options animated onto chalkboard
   }, []);
@@ -108,7 +91,7 @@ export default function Game({ difficulty }) {
   // Dialogue animation
   useGSAP(() => {
     tlRef.current.call(() => {
-      if (dialogueAnimationTrigger !== null) {
+      if ((dialogueAnimationTrigger !== null) && (textContent != '')) {
         console.log('dialogue played');
         dialogueAnimationTrigger.play();
       }
