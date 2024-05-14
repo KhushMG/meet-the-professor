@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Dialogue from "./Dialogue";
@@ -10,13 +10,11 @@ export default function Game({ difficulty }) {
   // Game setup states
   const [professor, setProfessor] = useState('');
   const [attributes, setAttributes] = useState({});
-  const [systemInstructions, setSystemInstructions] = useState('');
   const [messages, setMessages] = useState([]);
 
   // Dialogue animation states
   const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
   const [textContent, setTextContent] = useState('');
-  const dialogueRef = useRef(null);
 
   // Game logic states
   const [isStudentTurn, setIsStudentTurn] = useState(false);
@@ -24,6 +22,7 @@ export default function Game({ difficulty }) {
   const [optionA, setOptionA] = useState('');
   const [optionB, setOptionB] = useState('');
   const [optionC, setOptionC] = useState('');
+  const [userChoice, setUserChoice] = useState('');
 
 
   // Audios used in animation
@@ -53,7 +52,6 @@ export default function Game({ difficulty }) {
 
       // Call getSystemInstructions after attributes is set
       const systemInstructions = await invoke('get_system_instructions', { attributes });
-      setSystemInstructions(systemInstructions);
       // console.log(systemInstructions);
       setMessages(messages.push({ role: "system", content: systemInstructions }));
 
@@ -81,7 +79,6 @@ export default function Game({ difficulty }) {
     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
   }, []);
   
-
   // Recursive game animation
   const tl = gsap.timeline({ delay: 2.5 });
   const tlRef = useRef(tl);
@@ -90,15 +87,9 @@ export default function Game({ difficulty }) {
     tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
 
     // Student initial response generated in dialogue box
-
-
     // Professor response to student generated in dialogue box
-
-
     // Student dialogue options animated onto chalkboard
-
   }, []);
-
 
   // Dialogue animation
   useGSAP(() => {
@@ -110,70 +101,99 @@ export default function Game({ difficulty }) {
     }, null, '+=0.3')
   }, [textContent]);
 
+  
+  // Dialogue logic
+  const swapTurns = () => {
+    setIsStudentTurn(!isStudentTurn);
+    setIsProfessorTurn(!isProfessorTurn);
+  };
 
-  // Advance dialogue logic
-  useEffect(() => {
-    const swapTurns = () => {
-      setIsStudentTurn((prevState) => !prevState);
-      setIsProfessorTurn((prevState) => !prevState);
-    };
-
-    const getGPTResponse = async () => {
-      const gptResponse = await invoke('call_gpt', { messages: messages });
-      const gptData = JSON.parse(gptResponse);
-
-      const profResponse = gptData.choices[0].message.content;
-      const a = Math.max(profResponse.indexOf('A)'), profResponse.indexOf('A.'));
-      const b = Math.max(profResponse.indexOf('B)'), profResponse.indexOf('B.'));
-      const c = Math.max(profResponse.indexOf('C)'), profResponse.indexOf('C.'));
-
-      const optionA = profResponse.slice(a, b - 2);
-      const optionB = profResponse.slice(b, c - 2);
-      const optionC = profResponse.slice(c, profResponse.length - 1);
-      const profMessage = profResponse.slice(0, a).replace('\n', '')
-
+  // Getting, parsing, and displaying GPT's response in game
+  const getGPTResponse = async () => {
+    const gptResponse = await invoke('call_gpt', { messages: messages });
+    const gptData = JSON.parse(gptResponse);
+  
+    const profResponse = gptData.choices[0].message.content;
+    console.log(profResponse);
+    const optionRegex = /([AaBbCc1-3][\.\)])\s[^.]+\./g;
+    const match = profResponse.match(optionRegex);
+    console.log(match);
+  
+    if (match) {
+      const profMessage = profResponse.slice(0, match.index).trim();
+      const optionA = match[0].substring(3);
+      const optionB = match[1].substring(3);
+      const optionC = match[2].substring(3);
+  
       setOptionA(optionA);
       setOptionB(optionB);
       setOptionC(optionC);
       setTextContent(profMessage);
-
-      const copyOfMessages = [...messages, { "role": "assistant", "content": profMessage }];
-      setMessages(copyOfMessages);
-
+  
+      setMessages([...messages, { role: "assistant", content: profMessage }]);
+  
       console.log(profMessage);
       console.log(optionA);
       console.log(optionB);
       console.log(optionC);
-
+      swapTurns();
+    } else {
+      console.error("Failed to parse professor's response.");
+    }
+  };
+  
+  // Logic for when user selects an option
+  const handleSelectedUserChoice = (choice) => {
+    const selectedChoice = document.getElementById(choice).textContent;
+    setUserChoice(selectedChoice);
+    console.log(`Student choice: ${selectedChoice}`);
+  };
+  useEffect(() => {
+    if(userChoice != '') {
+      const copyOfMessages = [...messages, { role: 'user', content: userChoice }];
+      setMessages(copyOfMessages);
+      console.log(copyOfMessages);
       swapTurns();
     }
-    
+  }, [userChoice]);
+
+  useEffect(() => {
     // Set textContent to next dialogue message in here
     const handleAdvanceDialogue = (event) => {
-      if (event.code === 'Enter') {
-        if(isProfessorTurn) {
-          getGPTResponse();
-        }
-        else { console.log('solved') }
+      if ((event.code === 'Enter') && isProfessorTurn) {
+        getGPTResponse();
       }
     };
 
     document.addEventListener('keydown', handleAdvanceDialogue);
+    document.addEventListener('mousedown', handleAdvanceDialogue);
 
     return () => {
       document.removeEventListener('keydown', handleAdvanceDialogue);
+      document.removeEventListener('mousedown', handleAdvanceDialogue);
     };
   }, [isProfessorTurn]);
-  
+
+  // ------------------------------------------------------------------------------------------------------------------------------
 
   return (
-    <div className="relative h-screen flex justify-center text-red-500 font-bold">
+    <div className="relative h-screen flex justify-center">
 
       {/* Background div */}
       <div id='background' className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
 
+
       {/* Make sure rest of content goes above background div */}
       <div className="z-10 flex flex-col justify-end items-center select-none">
+
+        {isStudentTurn &&
+          <div className='h-screen w-[30vw] ml-[20rem] mb-[5rem] flex flex-col gap-y-[1rem] justify-center text-3xl text-white font-semibold fixed'>
+            <button id='A' onClick={() => handleSelectedUserChoice('A')}>A) {optionA}</button>
+            <button id='B' onClick={() => handleSelectedUserChoice('B')}>B) {optionB}</button>
+            <button id='C' onClick={() => handleSelectedUserChoice('C')}>C) {optionC}</button>
+          </div>
+        }
+
 
         {/* Professor Image */}
         <Image
@@ -190,7 +210,6 @@ export default function Game({ difficulty }) {
           <Dialogue
             textContent={textContent.toString()}
             setDialogueAnimationTrigger={setDialogueAnimationTrigger}
-            dialogueRef={dialogueRef}
           />
         </div>
 

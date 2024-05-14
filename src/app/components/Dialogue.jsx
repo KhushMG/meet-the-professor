@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useState, useRef, useEffect } from 'react';
 
-export default function Dialogue({ textContent, setDialogueAnimationTrigger, dialogueRef }) {
+export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   const [chars, setChars] = useState([]);
 
   // Split up text into characters
@@ -69,7 +69,7 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger, dia
   // }, [textContent]);
 
   return (
-    <div ref={dialogueRef} className="w-[75vw] h-[30vh] bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[3rem] overflow-y-scroll no-scrollbar">
+    <div className="w-[75vw] h-[30vh] bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[3rem] overflow-y-scroll no-scrollbar">
       {chars.map((word, idx1) => (
         <div className="inline-block" key={idx1}>
           {word.map((char, idx2) => (
