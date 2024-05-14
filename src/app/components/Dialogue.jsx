@@ -9,6 +9,7 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   useEffect(() => {
     const wordsArray = textContent.split(' ');
     const charsArray = wordsArray.map(wordToChars);
+    // console.log('charsArray:', charsArray);
     setChars(charsArray);
   }, [textContent]);
 
@@ -30,46 +31,46 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
 
   // ----------------------------------------------------------
   //
-  //        FIX DIALOGUE ANIAMTION LATER
+  //        FIX DIALOGUE ANIAMTION
   //
   // ----------------------------------------------------------
   // Character generation animation
-  // const currAnimatedElementRef = useRef(null);
-  // useGSAP(() => {
-  //   const animatedElements = gsap.utils.toArray('.js-animateText');
-  //   let idx = 0;
-  //   let animation = gsap.fromTo(
-  //     animatedElements,
-  //     { opacity: 0 },
-  //     {
-  //       duration: 0.1,
-  //       opacity: 1,
-  //       stagger: {
-  //         each: 0.05,
-  //         onStart: () => {
-  //           currAnimatedElementRef.current = animatedElements[idx];
-  //           idx++;
-  //           if (currAnimatedElementRef.current) {
-  //             currAnimatedElementRef.current.scrollIntoView({
-  //               behavior: 'smooth',
-  //               block: 'center',
-  //             });
-  //           }
-  //           dialoguePlaying.currentTime = 0;
-  //           dialoguePlaying.play();
-  //         },
-  //       },
-  //       onComplete: () => {
-  //         dialogueComplete.play();
-  //       },
-  //     }
-  //   );
-
-  //   setDialogueAnimationTrigger(animation);
-  // }, [textContent, setDialogueAnimationTrigger]);
+  const currAnimatedElementRef = useRef(null);
+  useGSAP(() => {
+    if(chars.length !== 0) {
+      const animatedElements = gsap.utils.toArray('.js-animateText');
+      // console.log('animatedElements:', animatedElements);
+      
+      let idx = 0;
+      let animation = gsap.from(animatedElements, {
+        paused: true,
+        duration: 0.05,
+        opacity: 0,
+        stagger: {
+          each: 0.05,
+          onStart: () => {
+            currAnimatedElementRef.current = animatedElements[idx];
+            if (currAnimatedElementRef.current) {
+              currAnimatedElementRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+              });
+            }
+            dialoguePlaying.currentTime = 0;
+            dialoguePlaying.play();
+            ++idx;
+          }
+        },
+        onComplete: () => {
+          dialogueComplete.play();
+        },
+      });
+      setDialogueAnimationTrigger(animation);
+    }
+  }, [chars]);
 
   return (
-    <div className="w-[75vw] h-[30vh] flex flex-col justify-between bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[2.5rem] overflow-y-scroll no-scrollbar">
+    <div key={chars} className="w-[75vw] h-[30vh] flex flex-col justify-between bg-white border-[1rem] border-amber-600 rounded-3xl mb-[1rem] p-[1rem] text-black text-[2.5rem] overflow-y-scroll no-scrollbar">
       <div>
         {chars.map((word, idx1) => (
           <div className="inline-block" key={idx1}>

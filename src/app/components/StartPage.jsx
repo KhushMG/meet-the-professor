@@ -36,7 +36,7 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
   useEffect(() => {
     if(difficultyRef.current) {
       setOffset(difficultyRef.current.offsetWidth);
-      console.log('Current offset:', difficultyRef.current.offsetWidth);
+      // console.log('Current offset:', difficultyRef.current.offsetWidth);
     }
   }, [difficulty]);
 

@@ -61,7 +61,7 @@ export default function Game({ difficulty }) {
       // console.log(textContent);
       setMessages(messages.push({ role: "user", content: studentInitialMessage }));
 
-      console.log('System:', messages[0].content);
+      // console.log('System:', messages[0].content);
       console.log('User:', messages[1].content);
     };
     setupGameStart();
@@ -69,24 +69,38 @@ export default function Game({ difficulty }) {
 
   
   // Initial game start animation
-  useGSAP(() => {
-    const gameStartTL = gsap.timeline({ delay: 1.5 });
+  // useGSAP(() => {
+  //   const gameStartTL = gsap.timeline({ delay: 1.5 });
 
+  //   // Lights turn on
+  //   gameStartTL.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio })
+
+  //   // Dialogue box appears from offscreen
+  //   .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
+  // }, []);
+
+  const tl = gsap.timeline({ delay: 1.5 });
+  const tlRef = useRef(tl);
+  useGSAP(() => {
     // Lights turn on
-    gameStartTL.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio })
+    tlRef.current.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio })
 
     // Dialogue box appears from offscreen
     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
   }, []);
   
   // Recursive game animation
-  const tl = gsap.timeline({ delay: 2.5 });
-  const tlRef = useRef(tl);
+  // const tl = gsap.timeline({ delay: 2.5 });
+  // const tlRef = useRef(tl);
   useGSAP(() => {
     // Professor walks from offscreen (from right to left side)
     tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
 
     // Student initial response generated in dialogue box
+    // tlRef.current.call(() => {
+    //   if(dialogueAnimationTrigger.current) dialogueAnimationTrigger.current.play();
+    // }, null, '+=0.75');
+
     // Professor response to student generated in dialogue box
     // Student dialogue options animated onto chalkboard
   }, []);
@@ -98,8 +112,8 @@ export default function Game({ difficulty }) {
         console.log('dialogue played');
         dialogueAnimationTrigger.play();
       }
-    }, null, '+=0.3')
-  }, [textContent]);
+    }, null, '+=0.05')
+  }, [dialogueAnimationTrigger]);
 
   
   // Dialogue logic
@@ -168,6 +182,11 @@ export default function Game({ difficulty }) {
       if ((event.button === 0) && isProfessorTurn) {
         getGPTResponse();
       }
+
+      // IF CONVERSATION IS OVER, SHOW GUESSING ATTRIBUTES WINDOW
+      else if(!isProfessorTurn && !isStudentTurn) {
+
+      }
     };
 
     document.addEventListener('mousedown', handleAdvanceDialogue);
@@ -179,26 +198,17 @@ export default function Game({ difficulty }) {
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  // const handleClick = ({choice}) => {
-  //   handleSelectedUserChoice(choice);
-
-  // };
-
   return (
     <div className="relative h-screen flex justify-center">
 
       {/* Background div */}
       <div id='background' className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]" />
 
-
       {/* Make sure rest of content goes above background div */}
       <div className="z-10 flex flex-col justify-end items-center select-none">
 
         {isStudentTurn &&
           <div className=' h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed'>
-            {/* <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
-            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
-            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button> */}
             <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
             <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
             <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>

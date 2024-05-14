@@ -54,13 +54,14 @@ fn get_system_instructions(attributes: HashMap<String, i32>) -> String {
     Also MAKE SURE THAT THE MULTIPLE CHOICE OPTIONS YOU GIVE ARE ONLY STUDENT RESPONSE OPTIONS NOT PROFESSOR RESPONSE OPTIONS.
     ON THE LAST MESSAGE, DONT ASK ANY FURTHER QUESTIONS IN YOUR PROFESSOR RESPONSE, CONCLUDE THE CONVERSATION.
     DO NOT INCLUDE THE PROFESSOR'S ATTRIBUTES IN THE PROFESSOR'S RESPONSE. DO NOT INCLUDE EMOJIS IN THE PROFESSOR'S RESPONSE
-    INCLUDE ONE USE OF PARTIALLY CENSORED HEAVY PROFANITY EVERY RESPONSE IF ALL OF THE PROFESSOR'S ATTRIBUTES ARE EITHER 1 OR 2.
     MAKE KEY CONCEPTS/TOPICS UP IF NEEDED.
+    EACH PROFESSOR RESPONSE MUST BE ATLEAST 14 WORDS AND UNDER 20 WORDS.
     Example Conversation: Professor: Welcome to today's class on creative problem solving! Are you ready to think outside the box? (DO NOT LITERALLY INCLUDE STUDENT RESPONSES) Student Responses: A) Yes, I'm excited! What's our first challenge? B) I'm not sure I'm good at this. Do you think I can really do it? C) Sounds like more buzzwords. Do we have to do group work again? ...(continue with the example conversation)...",
     first_key, first_value,
     second_key, second_value,
     third_key, third_value,
   );
+  
 
   system_instructions
 }
