@@ -11,7 +11,6 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
   // Game setup states
   const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
   const [keys, setKeys] = useState([]);
-  const [messages, setMessages] = useState([]);
   const setupCompleted = useRef(false);
 
   // Dialogue animation states
@@ -72,6 +71,7 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
   }, []);
   
   // For each round start (when professor changes)
+  const messagesRef = useRef([]);
   useEffect(() => {
     if (setupCompleted.current) {
       return;
@@ -87,14 +87,16 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
 
       // Get system instructions and push to messages history
       const systemInstructions = await invoke('get_system_instructions', { attributes });
-      setMessages([]);
-      setGameOver(false);
-      setMessages(messages.push({ role: "system", content: systemInstructions }));
+      messagesRef.current = [];
+      messagesRef.current.push({ role: "system", content: systemInstructions });
 
       // Generate student initial message, animate as dialogue, and push to messages history
       const studentInitialMessage = await invoke('generate_initial_user_message');
       setTextContent(studentInitialMessage);
-      setMessages(messages.push({ role: "user", content: studentInitialMessage }));
+      messagesRef.current.push({ role: "user", content: studentInitialMessage });
+
+      // setIsStudentTurn(false);
+      // setIsProfessorTurn(true);
     };
     setupGameStart();
     setupCompleted.current = true;
@@ -131,7 +133,7 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
 
   // Getting, parsing, and displaying GPT's response in game
   const getGPTResponse = async () => {
-    const gptResponse = await invoke('call_gpt', { messages: messages });
+    const gptResponse = await invoke('call_gpt', { messages: messagesRef.current });
     const gptData = JSON.parse(gptResponse);
   
     const profResponse = gptData.choices[0].message.content;
@@ -151,7 +153,7 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
       setOptionC(optionC);
       setTextContent(profMessage);
   
-      setMessages([...messages, { role: "assistant", content: profMessage }]);
+      messagesRef.current.push({ role: "assistant", content: profMessage });
   
       // console.log(profMessage);
       // console.log(optionA);
@@ -177,9 +179,8 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
   // Whenever user selects a dialogue option add it to messages array (so GPT can remember conversation)
   useEffect(() => {
     if(userChoice != '') {
-      const copyOfMessages = [...messages, { role: 'user', content: userChoice }];
-      setMessages(copyOfMessages);
-      console.log(copyOfMessages);
+      messagesRef.current.push({ role: 'user', content: userChoice });
+      console.log(messagesRef.current);
       swapTurns();
     }
   }, [userChoice]);

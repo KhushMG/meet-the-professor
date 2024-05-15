@@ -61,9 +61,9 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
       setProfessor(professor);
       console.log(`User Guess Accuracy: ${userAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
       console.log('Chosen Professor:', professor);
-      setIsStudentTurn(false);
-      setIsProfessorTurn(true);
       setIsConversationOver(false);
+      setIsProfessorTurn(true);
+      setIsStudentTurn(false);
       setupCompleted.current = false;
     }
   }

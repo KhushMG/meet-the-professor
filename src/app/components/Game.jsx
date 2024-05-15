@@ -47,7 +47,7 @@ export default function Game({ difficulty }) {
 
       {gameOver &&
         <div className="z-10 grid place-content-center">
-          <div className="text-9xl text-red-500">GAME OVER</div>
+          <div className="text-9xl text-red-500 select-none">GAME OVER</div>
         </div>
       }
     
