@@ -79,7 +79,7 @@ export default function Game({ difficulty }) {
 
       {/* Render Round component as long as game is not over */}
       {!gameOver &&
-        <Round setGameOver={setGameOver} accuracyThreshold={accuracyThreshold} setProfessor={setProfessor} professor={professor} setScore={setScore} score={score} />
+        <Round setGameOver={setGameOver} accuracyThreshold={accuracyThreshold} setProfessor={setProfessor} professor={professor} setScore={setScore} />
       }
 
       {showGameOver &&

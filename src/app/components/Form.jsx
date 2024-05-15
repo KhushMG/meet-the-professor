@@ -57,7 +57,7 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
       setGameOver(true);
     } else {
       // Incrememt score
-      setScore(score + 1);
+      setScore((currScore) => currScore + 1);
 
       // Generate a new random professor
       const professor = professors[Math.floor(Math.random() * professors.length)];

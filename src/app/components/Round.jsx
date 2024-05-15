@@ -7,7 +7,7 @@ import { invoke } from "@tauri-apps/api";
 import Form from './Form';
 import { professors } from '../professors';
 
-export default function Round({ setGameOver, accuracyThreshold, setProfessor, professor, setScore, score }) {
+export default function Round({ setGameOver, accuracyThreshold, setProfessor, professor, setScore }) {
   // Game setup states
   const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
   const [keys, setKeys] = useState([]);
@@ -199,7 +199,6 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
             setIsProfessorTurn={setIsProfessorTurn}
             setupCompleted={setupCompleted}
             setScore={setScore}
-            score={score}
           />
         </div>
 
