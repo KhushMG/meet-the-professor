@@ -39,6 +39,19 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
     }
   }, [difficulty]);
 
+  // Background music
+  useEffect(() => {
+    const audio = new Audio('/audio/StartMusic.mp3');
+    audio.loop = true;
+    audio.volume = 0.01;
+    audio.play();
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
+  
   // Credits pop-up logic
   const [creditsOpen, setCreditsOpen] = useState(false);
   const openCredits = () => { setCreditsOpen(true); };

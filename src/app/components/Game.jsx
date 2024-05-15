@@ -8,6 +8,34 @@ export default function Game({ difficulty }) {
   const [gameOver, setGameOver] = useState(false);
   const [professor, setProfessor] = useState('');
 
+  // Background music (fades in)
+  useEffect(() => {
+    const audio = new Audio('/audio/NoDestination.mp3');
+    audio.loop = true;
+    audio.loop = true;
+    audio.volume = 0;
+    audio.play();
+
+    const fadeDuration = 100000;
+    const fadeStep = 0.01;
+    const fadeInterval = fadeDuration / (1 / fadeStep);
+    let currentVolume = 0;
+    const fadeAudioIn = setInterval(() => {
+      if (currentVolume < 0.2) {
+        currentVolume = Math.min(currentVolume + fadeStep, 0.2);
+        audio.volume = currentVolume;
+      } else {
+        clearInterval(fadeAudioIn);
+      }
+    }, fadeInterval);
+
+    return () => {
+      clearInterval(fadeAudioIn);
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
+
   // Sets accuracyThreshold for gameOver state
   let accuracyThreshold;
   if (difficulty === 'Easy') {
@@ -30,11 +58,11 @@ export default function Game({ difficulty }) {
   lightSwitchAudio.volume = 0.4;
   const playLightSwitchAudio = () => { lightSwitchAudio.play(); };
 
-  const tl = gsap.timeline({ delay: 1.5 });
+  const tl = gsap.timeline({});
   const tlRef = useRef(tl);
   useGSAP(() => {
     // Lights turn on
-    tlRef.current.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio })
+    gsap.set('#background', { delay: 1.5, filter: 'brightness(1)', onComplete: playLightSwitchAudio } )
   }, []);
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -50,7 +78,7 @@ export default function Game({ difficulty }) {
 
       {/* Render Round component as long as game is not over */}
       {!gameOver &&
-        <Round tlRef={tlRef} setGameOver={setGameOver} accuracyThreshold={accuracyThreshold} setProfessor={setProfessor} professor={professor} />
+        <Round setGameOver={setGameOver} accuracyThreshold={accuracyThreshold} setProfessor={setProfessor} professor={professor} />
       }
 
       {gameOver &&

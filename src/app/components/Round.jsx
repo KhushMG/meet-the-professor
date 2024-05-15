@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { invoke } from "@tauri-apps/api";
 import Form from './Form';
 
-export default function Round({ tlRef, setGameOver, accuracyThreshold, setProfessor, professor }) {
+export default function Round({ setGameOver, accuracyThreshold, setProfessor, professor }) {
   // Game setup states
   const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
   const [keys, setKeys] = useState([]);
@@ -63,9 +63,11 @@ export default function Round({ tlRef, setGameOver, accuracyThreshold, setProfes
 
   
   // Round setup animations
+  const tl = gsap.timeline({ delay: 1.5});
+  const tlRef = useRef(tl);
   useGSAP(() => {
     // Professor walks on screen
-    tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
+    tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } }, '+=1.5' )
 
     // Dialogue box appears from offscreen
     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
@@ -79,7 +81,7 @@ export default function Round({ tlRef, setGameOver, accuracyThreshold, setProfes
         dialogueAnimationTrigger.play();
       }
     }, null, '+=0.05')
-  }, [professor, dialogueAnimationTrigger]);
+  }, [dialogueAnimationTrigger]);
 
   
   // Dialogue logic

@@ -29,17 +29,11 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   dialoguePlaying.volume = 0.5;
   dialogueComplete.volume = 0.5
 
-  // ----------------------------------------------------------
-  //
-  //        FIX DIALOGUE ANIAMTION
-  //
-  // ----------------------------------------------------------
   // Character generation animation
   const currAnimatedElementRef = useRef(null);
   useGSAP(() => {
     if(chars.length !== 0) {
       const animatedElements = gsap.utils.toArray('.js-animateText');
-      // console.log('animatedElements:', animatedElements);
       
       let idx = 0;
       let animation = gsap.from(animatedElements, {

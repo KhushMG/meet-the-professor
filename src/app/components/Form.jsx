@@ -4,7 +4,7 @@ import { professors } from '../professors';
 const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, setIsConversationOver, setIsStudentTurn, setIsProfessorTurn }) => {
   const [userGuess, setUserGuess] = useState({});
   const [showResults, setShowResults] = useState(false);
-  const [userAccuracy, setUserAccuracy] = useState(100);
+  const [userAccuracy, setUserAccuracy] = useState();
 
   const handleChange = (key) => (event) => {
     setUserGuess((prevGuess) => ({
@@ -14,6 +14,8 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
   };
   
   const handleSubmit = (event) => {
+    let totalUserAccuracy = 100;
+    let isValid = true;
     event.preventDefault();
     let idx = 0;
 
@@ -26,32 +28,43 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
       const attributeScore = attributes[attribute];
 
       // Get user guess on professor attribute score
-      const userGuessOfAttributeScore = userGuess[attribute];
+      const userGuessOfAttributeScore = userGuess[attribute] || 0;
+
+      // Check if the user guess is within the valid range (1-5)
+      if (userGuessOfAttributeScore < 1 || userGuessOfAttributeScore > 5) {
+        isValid = false;
+        console.log('invalid');
+        break;
+      }
 
       // Calculate user guess accuracy and add to total score
       const userGuessAccuracy = Math.abs(attributeScore - userGuessOfAttributeScore) * 6.6666666666;
-      setUserAccuracy(userAccuracy - userGuessAccuracy);
+      totalUserAccuracy -= userGuessAccuracy;
       idx++;
     }
 
-    // If user guess accuracy is lower than threshold, end game
-    if (userAccuracy < accuracyThreshold) {
-      console.log(`User Guess Accuracy: ${userAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
-      setGameOver(true);
-    } else {
+    if(isValid) {
+      setUserAccuracy(totalUserAccuracy);
       setShowResults(true);
     }
   };
 
   const handleCont = () => {
-    // Generate a new random professor
-    const professor = professors[Math.floor(Math.random() * professors.length)];
-    setProfessor(professor);
-    console.log(`User Guess Accuracy: ${userAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
-    console.log('Chosen Professor:', professor);
-    setIsStudentTurn(false);
-    setIsProfessorTurn(true);
-    setIsConversationOver(false);
+    // If user guess accuracy is lower than threshold, end game
+    if(userAccuracy < accuracyThreshold)
+    {
+      console.log(`User Guess Accuracy: ${userAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
+      setGameOver(true);
+    } else {
+      // Generate a new random professor
+      const professor = professors[Math.floor(Math.random() * professors.length)];
+      setProfessor(professor);
+      console.log(`User Guess Accuracy: ${userAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
+      console.log('Chosen Professor:', professor);
+      setIsStudentTurn(false);
+      setIsProfessorTurn(true);
+      setIsConversationOver(false);
+    }
   }
   
   return (
