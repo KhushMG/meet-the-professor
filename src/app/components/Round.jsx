@@ -94,9 +94,6 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
       const studentInitialMessage = await invoke('generate_initial_user_message');
       setTextContent(studentInitialMessage);
       messagesRef.current.push({ role: "user", content: studentInitialMessage });
-
-      // setIsStudentTurn(false);
-      // setIsProfessorTurn(true);
     };
     setupGameStart();
     setupCompleted.current = true;
