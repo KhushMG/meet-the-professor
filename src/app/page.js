@@ -1,7 +1,7 @@
 'use client'
 import Game from "./components/Game";
 import StartPage from "./components/StartPage";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function Home() {
 
@@ -13,17 +13,17 @@ export default function Home() {
 
   // Setting difficulty logic
   const [difficulty, setDifficulty] = useState('Easy');
-  const setSelectedDifficulty = (difficulty, accuracyThreshold) => {
+  const setSelectedDifficulty = (difficulty) => {
     setDifficulty(difficulty);
     console.log(difficulty)
   };
   
   return (
     <>
-      {/* Start Page */}
+      {/* Render start page if game hasn't clicked start */}
       {!shouldGameStart && <StartPage handleGameStart={startGame} handleSetDifficulty={setSelectedDifficulty} difficulty={difficulty} />}
 
-      {/* Game */}
+      {/* Render game page if user clicked start */}
       {shouldGameStart && <Game difficulty={difficulty} />}
     </>
   );

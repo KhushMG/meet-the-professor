@@ -1,180 +1,44 @@
-import { useEffect, useState, useRef } from 'react';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import Dialogue from "./Dialogue";
+import Round from "./Round";
+import { useState, useEffect, useRef } from 'react';
 import { professors } from '../professors';
-import Image from 'next/image';
-import { invoke } from "@tauri-apps/api";
-import Form from './Form';
 
 export default function Game({ difficulty }) {
-  // Game setup states
+  const [gameOver, setGameOver] = useState(false);
   const [professor, setProfessor] = useState('');
-  const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
-  const [keys, setKeys] = useState([]);
-  const [messages, setMessages] = useState([]);
 
-  // Dialogue animation states
-  const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
-  const [textContent, setTextContent] = useState('');
+  // Sets accuracyThreshold for gameOver state
+  let accuracyThreshold;
+  if (difficulty === 'Easy') {
+    accuracyThreshold = 50;
+  } else if (difficulty === 'Medium') {
+    accuracyThreshold = 65;
+  } else if (difficulty === 'Hard') {
+    accuracyThreshold = 80;
+  }
 
-  // Game logic states
-  const [isStudentTurn, setIsStudentTurn] = useState(false);
-  const [isProfessorTurn, setIsProfessorTurn] = useState(true);
-  const [optionA, setOptionA] = useState('');
-  const [optionB, setOptionB] = useState('');
-  const [optionC, setOptionC] = useState('');
-  const [userChoice, setUserChoice] = useState('');
-  const [isConversationOver, setIsConversationOver] = useState(false);
-
-
-  // Audios used in animation
-  const lightSwitchAudio = new Audio('/audio/lightswitch.mp3');
-  const dialogueOpenAudio = new Audio('/audio/dialogueopen.mp3');
-  const footstepAudio = new Audio('/audio/footstep.mp3');
-  lightSwitchAudio.volume = 0.4;
-  dialogueOpenAudio.volume = 0.5;
-  footstepAudio.volume = 0.5;
-  const playLightSwitchAudio = () => { lightSwitchAudio.play(); };
-  const playDialogueOpenAudio = () => { dialogueOpenAudio.play(); };
-  const playFootstepAudio = () => { footstepAudio.play(); };
-  
-
-  // For each round start (when professor changes)
   useEffect(() => {
     // Generate a new random professor
     const professor = professors[Math.floor((Math.random() * professors.length))];
     setProfessor(professor);
     console.log('Chosen Professor:', professor);
-
-    // Setup game
-    const setupGameStart = async () => {
-      // Generate and set professor attributes
-      const attributes = await invoke('get_attributes');
-      setAttributes(attributes);
-      setKeys(Object.keys(attributes));
-
-      // Get system instructions and push to messages history
-      const systemInstructions = await invoke('get_system_instructions', { attributes });
-      setMessages(messages.push({ role: "system", content: systemInstructions }));
-
-      // Generate student initial message, animate as dialogue, and push to messages history
-      const studentInitialMessage = await invoke('generate_initial_user_message');
-      setTextContent(studentInitialMessage);
-      setMessages(messages.push({ role: "user", content: studentInitialMessage }));
-
-      console.log('User:', messages[1].content);
-    };
-    setupGameStart();
   }, []);
 
+  // Audio used in animation
+  const lightSwitchAudio = new Audio('/audio/lightswitch.mp3');
+  lightSwitchAudio.volume = 0.4;
+  const playLightSwitchAudio = () => { lightSwitchAudio.play(); };
 
   const tl = gsap.timeline({ delay: 1.5 });
   const tlRef = useRef(tl);
   useGSAP(() => {
     // Lights turn on
     tlRef.current.set('#background', { filter: 'brightness(1)', onComplete: playLightSwitchAudio })
-
-    // Dialogue box appears from offscreen
-    .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
   }, []);
-  
-  // Professor walk on screen animation
-  useGSAP(() => {
-    tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
-  }, []);
-
-  // Dialogue animation
-  useGSAP(() => {
-    tlRef.current.call(() => {
-      if ((dialogueAnimationTrigger !== null) && (textContent != '')) {
-        console.log('dialogue played');
-        dialogueAnimationTrigger.play();
-      }
-    }, null, '+=0.05')
-  }, [dialogueAnimationTrigger]);
-
-  
-  // Dialogue logic
-  const swapTurns = () => {
-    setIsStudentTurn(!isStudentTurn);
-    setIsProfessorTurn(!isProfessorTurn);
-  };
-
-  // Getting, parsing, and displaying GPT's response in game
-  const getGPTResponse = async () => {
-    const gptResponse = await invoke('call_gpt', { messages: messages });
-    const gptData = JSON.parse(gptResponse);
-  
-    const profResponse = gptData.choices[0].message.content;
-    console.log(profResponse);
-    const optionRegex = /[A-C]\) [^]+?(?=(?: [A-C]\) |\n|$))/g;
-    const match = profResponse.match(optionRegex);
-    console.log('match:', match);
-  
-    if (match) {
-      const profMessage = profResponse.slice(0, profResponse.indexOf(match[0]));
-      const optionA = match[0];
-      const optionB = match[1];
-      const optionC = match[2];
-  
-      setOptionA(optionA);
-      setOptionB(optionB);
-      setOptionC(optionC);
-      setTextContent(profMessage);
-  
-      setMessages([...messages, { role: "assistant", content: profMessage }]);
-  
-      // console.log(profMessage);
-      // console.log(optionA);
-      // console.log(optionB);
-      // console.log(optionC);
-      swapTurns();
-    } else {
-      // HAVE PROFESSOR WALK OUT OF CLASSROOM AT END OF CONVERSATION
-      setTextContent(profResponse);
-      setIsProfessorTurn(false);
-      setIsStudentTurn(false);
-      console.log('Conversation finished');
-    }
-  };
-  
-  // Logic for when user selects an option
-  const handleSelectedUserChoice = (choice) => {
-    const selectedChoice = document.getElementById(choice).textContent;
-    setUserChoice(selectedChoice);
-    console.log(`Student choice: ${selectedChoice}`);
-  };
-
-  // Whenever user selects a dialogue option add it to messages array (so GPT can remember conversation)
-  useEffect(() => {
-    if(userChoice != '') {
-      const copyOfMessages = [...messages, { role: 'user', content: userChoice }];
-      setMessages(copyOfMessages);
-      console.log(copyOfMessages);
-      swapTurns();
-    }
-  }, [userChoice]);
-
-  // Advance dialogue logic
-  useEffect(() => {
-    const handleAdvanceDialogue = (event) => {
-      if ((event.button === 0) && isProfessorTurn) {
-        getGPTResponse();
-      }
-      else if(!isStudentTurn && !isProfessorTurn) { 
-        setIsConversationOver(true);
-      }
-    };
-
-    document.addEventListener('mousedown', handleAdvanceDialogue);
-
-    return () => {
-      document.removeEventListener('mousedown', handleAdvanceDialogue);
-    };
-  }, [isProfessorTurn]);
 
   // ------------------------------------------------------------------------------------------------------------------------------
+
   return (
     <div className="relative h-screen flex justify-center">
 
@@ -184,63 +48,17 @@ export default function Game({ difficulty }) {
         className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]"
       />
 
-      {isConversationOver ? (
-        // Mount Form component (to guess professor attributes) if conversation is over
-        <div className=" h-screen w-full z-10 flex flex-col items-center justify-center">
-          <Form keys={keys}/>
+      {/* Render Round component as long as game is not over */}
+      {!gameOver &&
+        <Round tlRef={tlRef} setGameOver={setGameOver} accuracyThreshold={accuracyThreshold} setProfessor={setProfessor} professor={professor} />
+      }
+
+      {gameOver &&
+        <div className="z-10 grid place-content-center">
+          <div className="text-7xl text-red-500">GAME OVER</div>
         </div>
-
-      ) : (
-        // If conversation isn't over, render dialogue
-        <div className="z-10 flex flex-col justify-end items-center select-none">
-
-          {/* Render student dialogue options if it is student's turn */}
-          {isStudentTurn && (
-            <div className=" h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed">
-              <button
-                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
-                id="A"
-                onClick={() => handleSelectedUserChoice("A")}
-              >
-                {optionA}
-              </button>
-              <button
-                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
-                id="B"
-                onClick={() => handleSelectedUserChoice("B")}
-              >
-                {optionB}
-              </button>
-              <button
-                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
-                id="C"
-                onClick={() => handleSelectedUserChoice("C")}
-              >
-                {optionC}
-              </button>
-            </div>
-          )}
-
-          {/* Professor Image */}
-          <Image
-            id="professorImg"
-            src={`/images/${professor}.png`}
-            alt="Image of professor"
-            height={1000}
-            width={500}
-            className="fixed mr-[40vw] -mb-[10vh]"
-          />
-
-          {/* Dialogue Box */}
-          <div id="dialogue" className="fixed">
-            <Dialogue
-              textContent={textContent.toString()}
-              setDialogueAnimationTrigger={setDialogueAnimationTrigger}
-            />
-          </div>
-        </div>
-      )}
-
+      }
+    
     </div>
   );
 }
