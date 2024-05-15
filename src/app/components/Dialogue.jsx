@@ -26,8 +26,8 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   // Audio for animations
   const dialoguePlaying = new Audio('/audio/beep.mp3');
   const dialogueComplete = new Audio('/audio/dialoguecomplete.mp3');
-  dialoguePlaying.volume = 0.5;
-  dialogueComplete.volume = 0.5
+  dialoguePlaying.volume = 0.2;
+  dialogueComplete.volume = 0.05;
 
   // Character generation animation
   const currAnimatedElementRef = useRef(null);

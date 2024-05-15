@@ -5,12 +5,14 @@ import Dialogue from "./Dialogue";
 import Image from 'next/image';
 import { invoke } from "@tauri-apps/api";
 import Form from './Form';
+import { professors } from '../professors';
 
 export default function Round({ setGameOver, accuracyThreshold, setProfessor, professor }) {
   // Game setup states
   const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
   const [keys, setKeys] = useState([]);
   const [messages, setMessages] = useState([]);
+  const setupCompleted = useRef(false);
 
   // Dialogue animation states
   const [dialogueAnimationTrigger, setDialogueAnimationTrigger] = useState(null);
@@ -29,14 +31,52 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
   // Audios used in animation
   const dialogueOpenAudio = new Audio('/audio/dialogueopen.mp3');
   const footstepAudio = new Audio('/audio/footstep.mp3');
-  dialogueOpenAudio.volume = 0.5;
-  footstepAudio.volume = 0.5;
+  dialogueOpenAudio.volume = 0.3;
+  footstepAudio.volume = 0.3;
   const playDialogueOpenAudio = () => { dialogueOpenAudio.play(); };
   const playFootstepAudio = () => { footstepAudio.play(); };
-  
 
+  // Background music (fades in)
+  useEffect(() => {
+    const audio = new Audio('/audio/NoDestination.mp3');
+    audio.loop = true;
+    audio.volume = 0;
+    audio.play();
+
+    const fadeDuration = 10000;
+    const fadeStep = 0.01;
+    const fadeInterval = fadeDuration / (1 / fadeStep);
+    let currentVolume = 0;
+    const fadeAudioIn = setInterval(() => {
+      if (currentVolume < 0.2) {
+        currentVolume = Math.min(currentVolume + fadeStep, 0.2);
+        audio.volume = currentVolume;
+      } else {
+        clearInterval(fadeAudioIn);
+      }
+    }, fadeInterval);
+
+    return () => {
+      clearInterval(fadeAudioIn);
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [professor]);
+
+  // Generate new professor on initial round
+  useEffect(() => {
+    // Generate a new random professor
+    const professor = professors[Math.floor((Math.random() * professors.length))];
+    setProfessor(professor);
+    console.log('Chosen Professor:', professor);
+  }, []);
+  
   // For each round start (when professor changes)
   useEffect(() => {
+    if (setupCompleted.current) {
+      return;
+    }
+
     // Setup game
     const setupGameStart = async () => {
       // Generate and set professor attributes
@@ -55,23 +95,22 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
       const studentInitialMessage = await invoke('generate_initial_user_message');
       setTextContent(studentInitialMessage);
       setMessages(messages.push({ role: "user", content: studentInitialMessage }));
-
-    //   console.log('User:', messages[1].content);
     };
     setupGameStart();
+    setupCompleted.current = true;
   }, [professor]);
 
   
   // Round setup animations
-  const tl = gsap.timeline({ delay: 1.5});
+  const tl = gsap.timeline();
   const tlRef = useRef(tl);
   useGSAP(() => {
     // Professor walks on screen
-    tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } }, '+=1.5' )
+    tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
 
     // Dialogue box appears from offscreen
     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
-  }, []);
+  }, [professor]);
 
   // Dialogue animation
   useGSAP(() => {
@@ -186,6 +225,7 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
             setIsConversationOver={setIsConversationOver}
             setIsStudentTurn={setIsStudentTurn}
             setIsProfessorTurn={setIsProfessorTurn}
+            setupCompleted={setupCompleted}
           />
         </div>
 

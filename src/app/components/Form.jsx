@@ -1,7 +1,7 @@
 import { React, useState } from 'react';
 import { professors } from '../professors';
 
-const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, setIsConversationOver, setIsStudentTurn, setIsProfessorTurn }) => {
+const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, setIsConversationOver, setIsStudentTurn, setIsProfessorTurn, setupCompleted }) => {
   const [userGuess, setUserGuess] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [userAccuracy, setUserAccuracy] = useState();
@@ -64,6 +64,7 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
       setIsStudentTurn(false);
       setIsProfessorTurn(true);
       setIsConversationOver(false);
+      setupCompleted.current = false;
     }
   }
   
