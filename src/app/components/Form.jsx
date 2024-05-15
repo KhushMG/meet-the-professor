@@ -41,7 +41,7 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
       // Generate a new random professor
       const professor = professors[Math.floor(Math.random() * professors.length)];
       setProfessor(professor);
-      console.log('User Guess Accuracy: {}\nAccuracy Threshold: {}', totalUserAccuracy, accuracyThreshold);
+      console.log(`User Guess Accuracy: ${totalUserAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
       console.log('Chosen Professor:', professor);
       setIsStudentTurn(false);
       setIsProfessorTurn(true);
@@ -50,7 +50,7 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
   };
   
   return (
-    <form className="z-10 bg-white h-[50vh] w-[50vw] grid place-content-center rounded-md text-black">
+    <form className="bg-white h-[50vh] w-[50vw] grid place-content-center rounded-md text-black">
 
       <div className='text-black font-semibold text-xl text-center mb-[2rem]'> guess the professor&apos;s attributes! </div>
 

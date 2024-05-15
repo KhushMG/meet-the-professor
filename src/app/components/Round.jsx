@@ -174,7 +174,7 @@ export default function Round({ tlRef, setGameOver, accuracyThreshold, setProfes
 
       {isConversationOver ? (
         // Mount Form component (to guess professor attributes) if conversation is over
-        <div className="z-10 h-screen w-full flex flex-col items-center justify-center">
+        <div className="z-10 h-screen w-screen flex flex-col items-center justify-center select-none">
           <Form
             keys={keys}
             attributes={attributes}

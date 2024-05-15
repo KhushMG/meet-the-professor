@@ -11,11 +11,11 @@ export default function Game({ difficulty }) {
   // Sets accuracyThreshold for gameOver state
   let accuracyThreshold;
   if (difficulty === 'Easy') {
-    accuracyThreshold = 50;
+    accuracyThreshold = 60;
   } else if (difficulty === 'Medium') {
-    accuracyThreshold = 65;
+    accuracyThreshold = 75;
   } else if (difficulty === 'Hard') {
-    accuracyThreshold = 80;
+    accuracyThreshold = 90;
   }
 
   useEffect(() => {
