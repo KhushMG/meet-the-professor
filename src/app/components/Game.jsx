@@ -188,7 +188,7 @@ export default function Game({ difficulty }) {
         className="absolute inset-0 bg-[url('./assets/background.jpg')] bg-cover bg-center bg-no-repeat brightness-[.25]"
       />
 
-      {!isConversationOver ? (
+      {isConversationOver ? (
         // Capture User's guess on Professor's attributes
         // Compare User's guesses to Professor's actual attribbutes
         // Calculate accuracy score:
