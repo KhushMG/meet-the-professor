@@ -1,7 +1,7 @@
 import { React, useState } from 'react';
 import { professors } from '../professors';
 
-const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, setIsConversationOver, setIsStudentTurn, setIsProfessorTurn, setupCompleted }) => {
+const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, setIsConversationOver, setIsStudentTurn, setIsProfessorTurn, setupCompleted, setScore, score }) => {
   const [userGuess, setUserGuess] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [userAccuracy, setUserAccuracy] = useState();
@@ -56,6 +56,9 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
       console.log(`User Guess Accuracy: ${userAccuracy}\nAccuracy Threshold: ${accuracyThreshold}`);
       setGameOver(true);
     } else {
+      // Incrememt score
+      setScore(score + 1);
+
       // Generate a new random professor
       const professor = professors[Math.floor(Math.random() * professors.length)];
       setProfessor(professor);

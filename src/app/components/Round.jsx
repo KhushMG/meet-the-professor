@@ -7,7 +7,7 @@ import { invoke } from "@tauri-apps/api";
 import Form from './Form';
 import { professors } from '../professors';
 
-export default function Round({ setGameOver, accuracyThreshold, setProfessor, professor }) {
+export default function Round({ setGameOver, accuracyThreshold, setProfessor, professor, setScore, score }) {
   // Game setup states
   const [attributes, setAttributes] = useState({'happiness': 3, 'helpfulness': 2, 'innovation': 1});
   const [keys, setKeys] = useState([]);
@@ -34,33 +34,6 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
   footstepAudio.volume = 0.3;
   const playDialogueOpenAudio = () => { dialogueOpenAudio.play(); };
   const playFootstepAudio = () => { footstepAudio.play(); };
-
-  // Background music (fades in)
-  useEffect(() => {
-    const audio = new Audio('/audio/NoDestination.mp3');
-    audio.loop = true;
-    audio.volume = 0;
-    audio.play();
-
-    const fadeDuration = 10000;
-    const fadeStep = 0.01;
-    const fadeInterval = fadeDuration / (1 / fadeStep);
-    let currentVolume = 0;
-    const fadeAudioIn = setInterval(() => {
-      if (currentVolume < 0.2) {
-        currentVolume = Math.min(currentVolume + fadeStep, 0.2);
-        audio.volume = currentVolume;
-      } else {
-        clearInterval(fadeAudioIn);
-      }
-    }, fadeInterval);
-
-    return () => {
-      clearInterval(fadeAudioIn);
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, [professor]);
 
   // Generate new professor on initial round
   useEffect(() => {
@@ -188,7 +161,7 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
       if ((event.button === 0) && isProfessorTurn) {
         getGPTResponse();
       }
-      else if(!isStudentTurn && !isProfessorTurn) { 
+      else if(!isStudentTurn && !isProfessorTurn) {
         setIsConversationOver(true);
       }
     };
@@ -224,6 +197,8 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
             setIsStudentTurn={setIsStudentTurn}
             setIsProfessorTurn={setIsProfessorTurn}
             setupCompleted={setupCompleted}
+            setScore={setScore}
+            score={score}
           />
         </div>
 
@@ -233,7 +208,7 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
 
           {/* Render student dialogue options if it is student's turn */}
           {isStudentTurn && (
-            <div className=" h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed">
+            <div className="h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed">
               <button
                 className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
                 id="A"

@@ -123,6 +123,16 @@ fn generate_initial_user_message() -> String {
       "Hi Professor, I felt lost in today's lecture about advanced topics. Can we discuss this further?".to_string(),
       "Professor, I'm not sure how to start our upcoming project. Do you have any advice?".to_string(),
       "Hello, I'm really worried about the upcoming exam. Can we review some of the key concepts?".to_string(),
+      "Professor, I missed the last class due to illness. Can you help me catch up on what I missed?".to_string(),
+      "Hi Professor, I'm confused about the grading criteria for our essays. Can we discuss this?".to_string(),
+      "Good afternoon, Professor. I'm having trouble with the research part of our project. Could you guide me?".to_string(),
+      "Professor, the group project isn't going well. Can we talk about some solutions?".to_string(),
+      "Hello Professor, I'm struggling to balance this course with my other commitments. Can you offer any advice?".to_string(),
+      "Hi Professor, I'm not sure I understand the theoretical concepts we discussed last week. Could we review them?".to_string(),
+      "Professor, I'm having difficulty accessing the online resources. Can you assist me?".to_string(),
+      "Good evening, Professor. I need clarification on the feedback you gave on my last assignment.".to_string(),
+      "Hello Professor, I'm feeling overwhelmed by the workload. Can you suggest a better way to manage it?".to_string(),
+      "Professor, I don't understand how to apply the formulas we learned. Can we go over some examples?".to_string(),
   ];
   let mut rng = rand::thread_rng();
 

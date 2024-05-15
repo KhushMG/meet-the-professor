@@ -4,7 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
   const [chars, setChars] = useState([]);
+  const [isClicked, setIsClicked] = useState(false);
 
+  const handleClick = () => {
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 100); // Reset the click effect after 200ms
+  };
+  
   // Split up text into characters
   useEffect(() => {
     const wordsArray = textContent.split(' ');
@@ -78,7 +84,26 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
         ))}
       </div>
       <div className='flex justify-end w-full h-fit'>
-        <div className='text-[2rem] mr-4 italic'> click to continue </div>
+        <div 
+          className={`text-[2rem] mr-4 italic cursor-pointer transition-transform duration-300 ${isClicked ? 'scale-105' : ''}`} 
+          style={{ transition: 'color 0.3s, transform 0.3s' }} 
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'purple';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            if (!isClicked) {
+              e.currentTarget.style.color = '';
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          }}
+          onClick={(e) => {
+            handleClick();
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+        >
+          click to continue
+        </div>
       </div>
     </div>
   );
