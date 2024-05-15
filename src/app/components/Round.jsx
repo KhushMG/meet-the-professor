@@ -151,7 +151,8 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
     if(userChoice != '') {
       messagesRef.current.push({ role: 'user', content: userChoice });
       console.log(messagesRef.current);
-      swapTurns();
+      gsap.to(".fixed button", { opacity: 0, duration: 0.5 });
+      setTimeout(() => swapTurns(), 1000);
     }
   }, [userChoice]);
 
@@ -210,21 +211,21 @@ export default function Round({ setGameOver, accuracyThreshold, setProfessor, pr
           {isStudentTurn && (
             <div className="h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed">
               <button
-                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
+                className="option bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl transform transition-transform duration-200 hover:scale-105 active:scale-95"
                 id="A"
                 onClick={() => handleSelectedUserChoice("A")}
               >
                 {optionA}
               </button>
               <button
-                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
+                className="option bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl transform transition-transform duration-200 hover:scale-105 active:scale-95"
                 id="B"
                 onClick={() => handleSelectedUserChoice("B")}
               >
                 {optionB}
               </button>
               <button
-                className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl "
+                className="option bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl transform transition-transform duration-200 hover:scale-105 active:scale-95"
                 id="C"
                 onClick={() => handleSelectedUserChoice("C")}
               >
