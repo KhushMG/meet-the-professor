@@ -101,7 +101,7 @@ const Form = ({ keys, attributes, accuracyThreshold, setGameOver, setProfessor, 
         </form> ) :
         ( <div>
           <p>Accuracy Threshold: {accuracyThreshold}</p>
-          <p>User Accuracy Score: {userAccuracy}</p>
+          <p>User Accuracy Score: {userAccuracy.toFixed(1)}</p>
           <button onClick={handleCont} className='p-4 mt-[2rem] border-black border-2 rounded-sm hover:text-white hover:bg-black hover:border-white hover:ring-2 hover:ring-black transition ease-in-out duration-150'>Continue</button>
         </div> )
       }

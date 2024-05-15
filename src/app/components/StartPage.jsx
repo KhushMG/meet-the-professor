@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useState, useEffect, useRef } from 'react';
 import Credits from './Credits';
+import Instructions from './Instructions';
 
 export default function StartPage({ handleGameStart, handleSetDifficulty, difficulty }) {
 
@@ -57,6 +58,11 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
   const openCredits = () => { setCreditsOpen(true); };
   const closeCredits = () => { setCreditsOpen(false); };
 
+  // Instructions pop-up logic
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const openInstructions = () => { setInstructionsOpen(true); };
+  const closeInstructions = () => { setInstructionsOpen(false); };
+
   return (
     <>
       <div className="relative h-screen flex items-center justify-center text-white font-thin">
@@ -83,12 +89,17 @@ export default function StartPage({ handleGameStart, handleSetDifficulty, diffic
           </div>
 
           {/* Credits Text */}
-          <div className="h-[10vh] w-screen flex items-center text-4xl gap-x-[1rem] pl-[2rem] pb-[2rem]">
-            <Image src={sweccLogo} alt='logo' className='rounded-md h-[8vh] w-auto' />
-            <button onClick={openCredits} className={`${creditsOpen ? 'cursor-default' : 'cursor-pointer'} `}>Credits</button>
+          <div className="h-[10vh] w-screen flex items-center justify-between text-4xl gap-x-[2rem] pl-[2rem] pb-[2rem]">
+            <div className='flex gap-x-[1rem]'>
+              <Image src={sweccLogo} alt='logo' className='rounded-md h-[8vh] w-auto' />
+              <button onClick={openCredits} className={`${creditsOpen ? 'cursor-default' : 'cursor-pointer'} `}>Credits</button>
+            </div>
+            <button onClick={openInstructions} className={`${creditsOpen ? 'cursor-default' : 'cursor-pointer'} mr-[2rem]`}>Instructions</button>
           </div>
         </div>
 
+        {/* Instructions Window */}
+        {instructionsOpen && <Instructions handleCloseInstructions={closeInstructions} /> }
         {/* Credits Window */}
         {creditsOpen && <Credits handleCloseCredits={closeCredits} />}
         

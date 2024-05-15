@@ -7,6 +7,7 @@ export default function Game({ difficulty }) {
   const [gameOver, setGameOver] = useState(false);
   const [professor, setProfessor] = useState('');
   const [score, setScore] = useState(0);
+  const [showGameOver, setShowGameOver] = useState(false);
 
   // Sets accuracyThreshold for gameOver state
   let accuracyThreshold;
@@ -24,8 +25,8 @@ export default function Game({ difficulty }) {
   const playLightSwitchAudio = () => { lightSwitchAudio.play(); };
 
   // Background music (fades in)
+  const audio = new Audio('/audio/NoDestination.mp3');
   useEffect(() => {
-    const audio = new Audio('/audio/NoDestination.mp3');
     audio.loop = true;
     audio.volume = 0;
     audio.play();
@@ -57,6 +58,14 @@ export default function Game({ difficulty }) {
     gsap.set('#background', { delay: 1.5, filter: 'brightness(1)', onComplete: playLightSwitchAudio } )
   }, []);
 
+  useGSAP(() => {
+    if(gameOver){
+      gsap.set('#background', { delay: 0.75, filter: 'brightness(0.25)', onComplete: playLightSwitchAudio } )
+      setTimeout(() => setShowGameOver(true), 750);
+      audio.pause();
+    }
+  }, [gameOver]);
+
   // ------------------------------------------------------------------------------------------------------------------------------
 
   return (
@@ -73,7 +82,7 @@ export default function Game({ difficulty }) {
         <Round setGameOver={setGameOver} accuracyThreshold={accuracyThreshold} setProfessor={setProfessor} professor={professor} setScore={setScore} score={score} />
       }
 
-      {gameOver &&
+      {showGameOver &&
         <div className="z-10 grid place-content-center text-center">
           <div className="text-9xl text-red-500 select-none">GAME OVER</div>
           <div className="text-7xl text-white select-none">Professors Profiled: {score}</div>

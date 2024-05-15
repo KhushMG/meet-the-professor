@@ -86,7 +86,7 @@ export default function Dialogue({ textContent, setDialogueAnimationTrigger }) {
       <div className='flex justify-end w-full h-fit'>
         <div 
           className={`text-[2rem] mr-4 italic cursor-pointer transition-transform duration-300 ${isClicked ? 'scale-105' : ''}`} 
-          style={{ transition: 'color 0.3s, transform 0.3s' }} 
+          style={{ transition: 'color 0.15s, transform 0.15s' }} 
           onMouseEnter={(e) => {
             e.currentTarget.style.color = 'purple';
             e.currentTarget.style.transform = 'scale(1.1)';
