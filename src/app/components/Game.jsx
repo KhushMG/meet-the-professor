@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, React } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Dialogue from "./Dialogue";
@@ -47,28 +47,27 @@ export default function Game({ difficulty }) {
     setProfessor(professor);
     console.log('Chosen Professor:', professor);
 
-    // Generate professor attributes and wait for it to complete
+    // Setup game
     const setupGameStart = async () => {
+      // Generate and set professor attributes
       const attributes = await invoke('get_attributes');
       setAttributes(attributes);
       setKeys(Object.keys(attributes));
 
-      // Call getSystemInstructions after attributes is set
+      // Get system instructions and push to messages history
       const systemInstructions = await invoke('get_system_instructions', { attributes });
-      // console.log(systemInstructions);
       setMessages(messages.push({ role: "system", content: systemInstructions }));
 
-      // Generate student initial message after getSystemInstructions is done
+      // Generate student initial message, animate as dialogue, and push to messages history
       const studentInitialMessage = await invoke('generate_initial_user_message');
       setTextContent(studentInitialMessage);
-      // console.log(textContent);
       setMessages(messages.push({ role: "user", content: studentInitialMessage }));
 
-      // console.log('System:', messages[0].content);
       console.log('User:', messages[1].content);
     };
     setupGameStart();
   }, []);
+
 
   const tl = gsap.timeline({ delay: 1.5 });
   const tlRef = useRef(tl);
@@ -80,15 +79,9 @@ export default function Game({ difficulty }) {
     .fromTo('#dialogue', { y: '50vh' }, { y: '0', duration: 0.3, ease: 'rough', onStart: playDialogueOpenAudio }, '+=0.7')
   }, []);
   
-  // Recursive game animation
-  // const tl = gsap.timeline({ delay: 2.5 });
-  // const tlRef = useRef(tl);
+  // Professor walk on screen animation
   useGSAP(() => {
-    // Professor walks from offscreen (from right to left side)
     tlRef.current.from('#professorImg', { x:'100vw', duration: 2, ease: 'rough', skewX: '-10deg', skewY: '-10deg', stagger: { onUpdate: playFootstepAudio } } )
-
-    // Professor response to student generated in dialogue box
-    // Student dialogue options animated onto chalkboard
   }, []);
 
   // Dialogue animation
@@ -152,6 +145,8 @@ export default function Game({ difficulty }) {
     setUserChoice(selectedChoice);
     console.log(`Student choice: ${selectedChoice}`);
   };
+
+  // Whenever user selects a dialogue option add it to messages array (so GPT can remember conversation)
   useEffect(() => {
     if(userChoice != '') {
       const copyOfMessages = [...messages, { role: 'user', content: userChoice }];
@@ -161,8 +156,8 @@ export default function Game({ difficulty }) {
     }
   }, [userChoice]);
 
+  // Advance dialogue logic
   useEffect(() => {
-    // Set textContent to next dialogue message in here
     const handleAdvanceDialogue = (event) => {
       if ((event.button === 0) && isProfessorTurn) {
         getGPTResponse();
@@ -182,6 +177,7 @@ export default function Game({ difficulty }) {
   // ------------------------------------------------------------------------------------------------------------------------------
   return (
     <div className="relative h-screen flex justify-center">
+
       {/* Background div */}
       <div
         id="background"
@@ -189,15 +185,16 @@ export default function Game({ difficulty }) {
       />
 
       {isConversationOver ? (
-        // Capture User's guess on Professor's attributes
-        // Compare User's guesses to Professor's actual attribbutes
-        // Calculate accuracy score:
-
+        // Mount Form component (to guess professor attributes) if conversation is over
         <div className=" h-screen w-full z-10 flex flex-col items-center justify-center">
           <Form keys={keys}/>
         </div>
+
       ) : (
+        // If conversation isn't over, render dialogue
         <div className="z-10 flex flex-col justify-end items-center select-none">
+
+          {/* Render student dialogue options if it is student's turn */}
           {isStudentTurn && (
             <div className=" h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed">
               <button
@@ -223,6 +220,7 @@ export default function Game({ difficulty }) {
               </button>
             </div>
           )}
+
           {/* Professor Image */}
           <Image
             id="professorImg"
@@ -243,34 +241,6 @@ export default function Game({ difficulty }) {
         </div>
       )}
 
-      {/*       
-      <div className="z-10 flex flex-col justify-end items-center select-none">
-
-        {isStudentTurn &&
-          <div className=' h-screen w-[30vw] ml-[52rem] mb-[5rem] flex flex-col gap-y-[2rem] justify-center text-3xl text-black fixed'>
-            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='A' onClick={() => handleSelectedUserChoice('A')}>{optionA}</button>
-            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='B' onClick={() => handleSelectedUserChoice('B')}>{optionB}</button>
-            <button className="bg-white border-[0.5rem] p-4 border-amber-600 rounded-xl " id='C' onClick={() => handleSelectedUserChoice('C')}>{optionC}</button>
-          </div>
-        }
-        
-        <Image
-          id='professorImg'
-          src={`/images/${professor}.png`}
-          alt='Image of professor'
-          height={1000}
-          width={500}
-          className='fixed mr-[40vw] -mb-[10vh]'
-        />
-
-       
-        <div id='dialogue' className="fixed">
-          <Dialogue
-            textContent={textContent.toString()}
-            setDialogueAnimationTrigger={setDialogueAnimationTrigger}
-          />
-        </div>
-      </div> */}
     </div>
   );
 }
