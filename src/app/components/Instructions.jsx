@@ -15,6 +15,7 @@ export default function Instructions({ handleCloseInstructions }) {
             <li>Choose Wisely: Select one of the options to continue the conversation. The professor’s tone will reflect their unique traits.</li>
             <li>Continue the Dialogue: Keep the conversation going by choosing your responses from the provided options.</li>
             <li>Conclude the Conversation: After several exchanges, the conversation will come to a natural end.</li>
+            <li>Profile the professor by guessing their attributes</li>
           </ul>
           <p className="mt-4">Enjoy exploring the diverse personalities of different professors in &quot;Prof-iler&quot;!</p>
         </div>
